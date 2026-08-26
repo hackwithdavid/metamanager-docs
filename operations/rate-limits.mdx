@@ -1,0 +1,70 @@
+---
+title: "Rate limits"
+description: "How many checks an hour, how they are counted, and what the headers say."
+---
+
+## The limits
+
+| Plan | Checks per hour | Saved URLs | Projects |
+| :--- | :--- | :--- | :--- |
+| Anonymous | 50 | — | — |
+| Free | 100 | 3 | 1 |
+| Pro | 1,000 | unlimited | unlimited |
+
+Signing in raises your limit rather than lowering it. A free account can always
+do more than a stranger — otherwise signing in would be a downgrade.
+
+## A sliding window, not a bucket that empties on the hour
+
+Timestamps are stored, not counters. Your allowance is "requests in the last
+sixty minutes", which means it recovers continuously instead of all at once —
+so there is no cliff at the top of the hour and no incentive to wait for one.
+
+Requests that are **denied are not recorded**. Hammering a limit you have
+already hit does not extend it.
+
+## Headers
+
+Every response carries the current state:
+
+```text
+x-ratelimit-limit: 50
+x-ratelimit-remaining: 48
+x-ratelimit-reset: 3593
+```
+
+`x-ratelimit-reset` is seconds until the oldest request in your window falls
+out — the point at which you regain one unit, not a full reset.
+
+A 429 adds `retry-after`, also in seconds:
+
+```json
+{
+  "error": "rate_limited",
+  "message": "Limit of 50 inspections per hour reached. Try again in 3502 seconds.",
+  "retry_after": 3502
+}
+```
+
+## What the budget is keyed to
+
+Anonymous requests are keyed by IP. **Signed-in requests are keyed by account**,
+which means the quota follows the person rather than the network — an office
+behind one NAT shares a bucket while anonymous and stops sharing the moment
+they sign in.
+
+## Sign-in emails have their own, much tighter limit
+
+Five per hour, counted per address **and** per IP.
+
+Limiting only by IP would leave an email-bombing vector: a hundred addresses
+from one machine is caught, but one address from a hundred machines is not —
+and the victim is whoever owns the inbox.
+
+A rate-limited login still answers `202` with the usual message, because saying
+"too many attempts for this address" would confirm the address is worth trying.
+
+## If the limiter is unavailable
+
+It fails **open**. A rate limiter that is down should not take the checker down
+with it.

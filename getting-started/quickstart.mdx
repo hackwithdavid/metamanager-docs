@@ -1,0 +1,100 @@
+---
+title: "Quickstart"
+description: "One request to a full metadata report. No key required."
+---
+
+## Check a page
+
+```bash
+curl 'https://metamanager.dev/inspect?url=https://example.com'
+```
+
+No API key, no account, no signup. The free checker is open.
+
+## Read the score first
+
+```json
+{
+  "url": "https://example.com",
+  "final_url": "https://example.com/",
+  "status_code": 200,
+  "score": 17,
+  "metadata": { "…": "…" },
+  "previews": { "…": "…" },
+  "issues": [ "…" ]
+}
+```
+
+`score` is 0–100, weighted by consequence rather than by counting tags. A missing `og:image` costs far more than a missing `og:locale`, because one of them changes whether anybody clicks the link.
+
+## Then read the issues
+
+Each issue tells you what is wrong and what to paste:
+
+```json
+{
+  "code": "missing_description",
+  "severity": "warning",
+  "importance": "recommended",
+  "title": "Missing description",
+  "description": "This page has no meta description. Search engines and social platforms fall back to guessing at page content without one.",
+  "fix": {
+    "html": "<meta name=\"description\" content=\"A short summary of the page.\">",
+    "laravel": "Meta::description('A short summary of the page.');"
+  }
+}
+```
+
+`fix` is `null` for issues where no snippet can be correct without knowing your content — a title that is too short cannot be fixed by a generic string.
+
+## Parameters
+
+| Parameter | Values | What it does |
+| :--- | :--- | :--- |
+| `url` | any public http/https URL | **Required.** The page to check. |
+| `prompt` | `html`, `laravel`, `next`, `nuxt`, `other` | Adds a ready-to-paste AI fix prompt. See [fix prompts](/guides/fix-prompt). |
+| `fresh` | `1` | Bypasses the cache. Reports are cached for 15 minutes. |
+
+```bash
+curl 'https://metamanager.dev/inspect?url=https://example.com&prompt=next&fresh=1'
+```
+
+## Check the response, not just the status
+
+A page that returns 404 or 503 is reported as an error rather than scored as an empty document:
+
+```json
+{
+  "error": "http_error",
+  "message": "the site returned HTTP 404",
+  "url": "https://example.com/missing",
+  "upstream_status": 404
+}
+```
+
+<Warning>
+  A checker that scored an error page would report "16 tags missing" for a site that is simply down. Always branch on `error` before reading `score`. See [errors](/operations/errors) for every code.
+</Warning>
+
+## Rate limits
+
+Fifty checks an hour without an account, keyed by IP. Every response carries the current state:
+
+```text
+x-ratelimit-limit: 50
+x-ratelimit-remaining: 48
+x-ratelimit-reset: 3593
+```
+
+Signing in raises it to 100 an hour and moves the budget from your network to your account. [Full table](/operations/rate-limits).
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="The report" icon="file-code" href="/guides/the-report">
+    Every field, and what it is for.
+  </Card>
+  <Card title="Issue codes" icon="list-check" href="/guides/issues">
+    All thirty-three, with fixes.
+  </Card>
+</CardGroup>

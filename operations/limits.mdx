@@ -1,0 +1,51 @@
+---
+title: "Limits"
+description: "Timeouts, sizes, redirects and caching."
+---
+
+| Limit | Value | On exceeding |
+| :--- | :--- | :--- |
+| Fetch timeout | 15 seconds | `fetch_timeout`, HTTP 504 |
+| Document size | 2 MB | `document_too_large`, HTTP 413 |
+| Redirects followed | 5 | `too_many_redirects`, HTTP 502 |
+| Report cache | 15 minutes | — |
+
+## Caching
+
+Identical requests inside fifteen minutes return the cached report. The
+response says which you got:
+
+```text
+x-cache: hit
+x-cache: miss
+```
+
+Bypass it with `fresh=1`:
+
+```bash
+curl 'https://metamanager.dev/inspect?url=https://example.com&fresh=1'
+```
+
+A cached response still counts against your rate limit. The limit is about
+fairness of access, not about our compute.
+
+<Note>
+  `prompt=` is applied **after** the cache, so switching framework never costs a
+  fresh check. One cached report serves all five frameworks.
+</Note>
+
+## Document size
+
+Only the HTML is measured, and reading stops at the ceiling rather than failing
+outright where possible — `truncated: true` on the report tells you it happened.
+Everything that matters is normally in `<head>`, so a truncated document usually
+still produces a complete report.
+
+## Images
+
+Social images are fetched to measure them, and are subject to the same SSRF
+rules as the page itself — an `og:image` pointing at a private address is not
+fetched.
+
+Only the header bytes are needed for dimensions, so the whole file is not
+downloaded.

@@ -1,0 +1,79 @@
+---
+title: "Errors"
+description: "Every error code /inspect can return, and what to do about each."
+---
+
+Errors are JSON with a stable `error` field. Branch on that, never on `message`,
+which is prose and may be reworded.
+
+```json
+{
+  "error": "http_error",
+  "message": "the site returned HTTP 404",
+  "url": "https://example.com/missing",
+  "upstream_status": 404
+}
+```
+
+<Warning>
+  **Check `error` before reading `score`.** A checker that scored an error page
+  would report "16 tags missing" for a site that is merely down, which is worse
+  than useless. An error response has no `score`, `metadata` or `previews`.
+</Warning>
+
+## The URL was refused
+
+Returned before any request is made.
+
+| `error` | HTTP | Meaning |
+| :--- | :--- | :--- |
+| `missing_parameter` | 400 | No `?url=` was supplied. |
+| `malformed_url` | 400 | Not parseable as a URL. |
+| `unsupported_scheme` | 400 | Only `http:` and `https:` are fetched. |
+| `credentials_in_url` | 400 | `https://user:pass@host/`. Credentials have no legitimate use in a public metadata check, and the real host follows the `@`. |
+| `blocked_hostname` | 403 | `localhost`, `.local`, and names that cannot be public. |
+| `private_address` | 403 | Resolves to a private or link-local address. |
+| `dns_resolution_failed` | 400 | The hostname does not resolve. |
+
+`blocked_hostname` and `private_address` are the SSRF defences. They are
+load-bearing rather than decorative: a Worker's `fetch` will happily connect to
+`127.0.0.1`, so these checks are the only thing preventing it.
+
+## The fetch failed
+
+| `error` | HTTP | Meaning |
+| :--- | :--- | :--- |
+| `http_error` | 502 | The site answered, but with 4xx or 5xx. `upstream_status` carries which. |
+| `fetch_timeout` | 504 | No response within the timeout. |
+| `network_error` | 502 | Connection failed or TLS could not be negotiated. |
+| `too_many_redirects` | 502 | More than five hops. |
+| `invalid_redirect` | 502 | A `Location` we could not or would not follow. |
+| `document_too_large` | 413 | Over 2 MB. |
+
+`upstream_status` appears only on `http_error`, so a consumer can tell a 404
+from a 503 without parsing English.
+
+## Refused for other reasons
+
+| `error` | HTTP | Meaning |
+| :--- | :--- | :--- |
+| `rate_limited` | 429 | Over your hourly quota. `retry_after` is in seconds. |
+| `self_inspection` | 400 | metamanager.dev cannot check itself — see below. |
+| `not_found` | 404 | No such route. |
+| `method_not_allowed` | 405 | Wrong verb. |
+| `internal_error` | 500 | Ours. Worth reporting. |
+
+## Why the site cannot check itself
+
+```json
+{
+  "error": "self_inspection",
+  "message": "metamanager.dev cannot inspect itself. A Cloudflare Worker cannot fetch its own domain…"
+}
+```
+
+Cloudflare routes a Worker's request to its own zone past the Worker to an
+origin server. This site has no origin, so the request fails rather than
+looping. Detecting it and saying so plainly beats a confusing 522.
+
+Any other URL works normally.

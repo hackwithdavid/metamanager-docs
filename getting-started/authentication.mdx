@@ -1,0 +1,72 @@
+---
+title: "Authentication"
+description: "The checker is open. What signing in changes, and what is coming."
+---
+
+## The checker needs no credentials
+
+```bash
+curl 'https://metamanager.dev/inspect?url=https://example.com'
+```
+
+There is no API key to obtain, no header to set, and no signup. This is
+deliberate and not a trial: the single-page checker is free and stays free.
+
+Requests are rate limited by IP. See [rate limits](/operations/rate-limits).
+
+## Signing in
+
+Signing in is passwordless. You give an email address, we send a link, the link
+signs you in. There is no password to remember and none to leak.
+
+```bash
+curl -X POST https://metamanager.dev/auth/login \
+  -H 'content-type: application/json' \
+  -d '{"email":"you@example.com"}'
+```
+
+```json
+{ "ok": true, "message": "If that address can sign in, a link is on its way." }
+```
+
+<Note>
+  That response is identical whether the address has an account or not. A
+  different status or message would turn the login form into a way to test
+  whether somebody uses MetaManager.
+</Note>
+
+The link is single-use and expires in fifteen minutes. Redeeming it sets a
+session cookie — `HttpOnly`, `Secure`, `SameSite=Lax` — and the browser is
+redirected so the token does not linger in history or a `Referer` header.
+
+## What a session gets you
+
+Sessions are for the web application. They raise your rate limit, move the
+budget from your network to your account, and unlock saved URLs and projects.
+
+```bash
+curl https://metamanager.dev/entitlements
+```
+
+```json
+{
+  "plan": "anonymous",
+  "label": "Anonymous",
+  "checks_per_hour": 50,
+  "saved_urls": 0,
+  "projects": 0,
+  "api": false
+}
+```
+
+## Programmatic API access
+
+<Warning>
+  **There are no API keys yet.** `/inspect` is open and rate limited by IP;
+  everything else is cookie-authenticated and intended for the browser. Issuing
+  bearer tokens for programmatic Pro access is planned, and `api: true` on the
+  Pro plan describes that intent rather than a shipped feature.
+</Warning>
+
+If you are automating against `/inspect` today, you need nothing — just stay
+within the anonymous rate limit, or get in touch if you need more.

@@ -1,0 +1,176 @@
+---
+title: "The report"
+description: "Every field in an /inspect response, and what it is for."
+---
+
+One request returns one JSON document. This page walks it top to bottom.
+
+```bash
+curl 'https://metamanager.dev/inspect?url=https://example.com'
+```
+
+## Top level
+
+```json
+{
+  "url": "https://example.com",
+  "final_url": "https://example.com/",
+  "status_code": 200,
+  "response_time": 184,
+  "document_size": 1256,
+  "truncated": false,
+  "score": 17,
+  "metadata": { },
+  "image": null,
+  "previews": { },
+  "issues": [ ],
+  "redirects": [ ]
+}
+```
+
+| Field | Type | Notes |
+| :--- | :--- | :--- |
+| `url` | string | What you asked for, normalised. |
+| `final_url` | string | Where the fetch ended up. Differs from `url` when redirects were followed. |
+| `status_code` | number | The final response's status. |
+| `response_time` | number | Milliseconds to fetch. Your latency, not ours. |
+| `document_size` | number | Bytes of HTML read. |
+| `truncated` | boolean | `true` if the document exceeded 2 MB and reading stopped. |
+| `score` | number | 0–100. See below. |
+
+<Note>
+  When `truncated` is `true`, metadata later in the document may be missing. In practice everything relevant lives in `<head>`, so this is rare — but it explains a suspiciously empty report on an enormous page.
+</Note>
+
+## score
+
+A number from 0 to 100, weighted by consequence rather than by counting tags.
+
+A missing `og:image` costs ten points; a missing `og:locale` costs two. That is deliberate: one of them decides whether anybody clicks your link, and the other is a nicety. Several issues carry no weight at all and are advice rather than deductions — [the issue reference](/guides/issues) marks which.
+
+The score is not a standard. It is our weighting of what actually costs you traffic.
+
+## metadata
+
+Everything found on the page, unresolved and unmerged — what is literally there.
+
+```json
+"metadata": {
+  "title": "Example Domain",
+  "description": null,
+  "canonical": null,
+  "robots": null,
+  "viewport": "width=device-width, initial-scale=1",
+  "charset": null,
+  "lang": "en",
+  "author": null,
+  "keywords": null,
+  "open_graph": { },
+  "twitter": { },
+  "links": {
+    "canonical": [],
+    "icons": [ { "rel": "icon", "href": "/favicon.ico" } ],
+    "alternate": [],
+    "manifest": []
+  }
+}
+```
+
+`null` means the tag is absent. An empty string means the tag is present but empty — a real and different problem, which is why `empty_title` is its own issue code.
+
+<Warning>
+  Character references are decoded. A page whose title is `Ben &amp; Jerry&#39;s` reports `Ben & Jerry's`, because that is what a person sees. Length rules count the decoded string.
+</Warning>
+
+## image
+
+Present only when the page declares a social image, and only when that image could be fetched:
+
+```json
+"image": {
+  "url": "https://example.com/og.png",
+  "width": 1200,
+  "height": 630,
+  "alt": "A screenshot of the dashboard",
+  "size": 82014,
+  "mime": "image/png",
+  "accessible": true,
+  "inspected": true,
+  "state": "ok",
+  "declared": { "width": null, "height": null }
+}
+```
+
+| Field | Notes |
+| :--- | :--- |
+| `width`, `height` | Read from the **file's own header bytes**, not from what the page claims. |
+| `declared` | What the page said via `og:image:width` / `og:image:height`, or `null`. |
+| `size` | Bytes. |
+| `mime` | From the response, e.g. `image/png`. |
+| `accessible` | Whether the file could be fetched at all. |
+| `inspected` | Whether we got far enough to measure it. |
+| `state` | `ok`, or why not. |
+
+Measuring the file rather than trusting the page is what makes `image_dimensions_mismatch` possible: the page declares one size, the file is another, and platforms that trust the declaration lay the card out wrongly.
+
+`accessible: false` means the URL was declared but could not be fetched — a 404, a redirect loop, or a host that refuses us. To a crawler that is the same as having no image at all.
+
+## previews
+
+How the page renders on each of eight platforms:
+
+```json
+"previews": {
+  "google":   { },
+  "x":        { },
+  "facebook": { },
+  "linkedin": { },
+  "discord":  { },
+  "whatsapp": { },
+  "slack":    { },
+  "telegram": { }
+}
+```
+
+Each carries the resolved `title`, `description` and `image` that platform would use, the `source` each value came from, and whether the result is `approximate`. [Full detail](/guides/previews).
+
+## issues
+
+An array, ordered by how much each one matters:
+
+```json
+{
+  "code": "missing_description",
+  "severity": "warning",
+  "importance": "recommended",
+  "title": "Missing description",
+  "description": "This page has no meta description. …",
+  "fix": {
+    "html": "<meta name=\"description\" content=\"A short summary of the page.\">",
+    "laravel": "Meta::description('A short summary of the page.');"
+  }
+}
+```
+
+`code` is stable and safe to branch on. `title` and `description` are prose and may be reworded — do not match on them.
+
+`fix` is `null` where no generic snippet could be right: a title that is too short cannot be fixed by a string we invent.
+
+Every code is listed in [the issue reference](/guides/issues).
+
+## redirects
+
+The chain, when there was one:
+
+```json
+"redirects": [
+  { "url": "http://example.com/", "status": 301 },
+  { "url": "https://example.com/", "status": 200 }
+]
+```
+
+Each hop is the URL requested and the status it returned. The last entry is `final_url` and its final status.
+
+Worth reading. Metadata is taken from `final_url`, so a page that redirects somewhere unexpected explains a report that looks like it belongs to a different site.
+
+Up to five redirects are followed before the request is refused.

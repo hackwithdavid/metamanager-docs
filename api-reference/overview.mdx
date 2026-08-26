@@ -1,0 +1,61 @@
+---
+title: "API overview"
+description: "Base URL, authentication, and the shape of every response."
+---
+
+```text
+https://metamanager.dev
+```
+
+## Three endpoints
+
+| Endpoint | Purpose |
+| :--- | :--- |
+| `GET /inspect` | The checker. Everything is here. |
+| `GET /entitlements` | Your current plan and limits. |
+| `GET /health` | Liveness. |
+
+`/inspect` takes no credentials. See [authentication](/getting-started/authentication)
+for what a session adds and why there are no API keys yet.
+
+## Responses are one document
+
+There are no jobs, no polling and no webhooks. A check is a single synchronous
+request that returns the whole report — score, metadata, all eight previews and
+every issue.
+
+Typical responses are a few hundred milliseconds; a slow target can take up to
+the 15-second fetch timeout.
+
+## Two fields are a contract
+
+`issues[].code` and the top-level `error` are stable identifiers. New values get
+added; existing ones are not renamed or removed without deprecation, and a guard
+test in the codebase makes breaking one deliberate rather than accidental.
+
+Everything else — `title`, `description`, `message`, `basis` — is prose written
+for people and may be reworded. Do not match on it.
+
+## Errors do not carry reports
+
+```json
+{ "error": "http_error", "message": "the site returned HTTP 404", "upstream_status": 404 }
+```
+
+An error response has no `score`, `metadata` or `previews`. Check `error` first.
+[Every code](/operations/errors).
+
+## Rate limits are on every response
+
+```text
+x-ratelimit-limit: 50
+x-ratelimit-remaining: 48
+x-ratelimit-reset: 3593
+```
+
+Fifty an hour anonymously. [Details](/operations/rate-limits).
+
+## Caching
+
+Reports are cached for fifteen minutes and `x-cache` says `hit` or `miss`. Add
+`fresh=1` to bypass. Cached responses still count against your limit.

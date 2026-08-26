@@ -1,0 +1,108 @@
+---
+title: "Previews"
+description: "How the same page resolves differently on eight platforms."
+---
+
+Every platform builds its preview from a different set of tags, with a different fallback order. A page can look perfect on X and broken on LinkedIn, and the tags themselves will not tell you which.
+
+`previews` resolves all eight for you.
+
+## The eight
+
+| Key | Platform | Reads |
+| :--- | :--- | :--- |
+| `google` | Google search | `<title>` and `meta description` only — **never** Open Graph |
+| `x` | X / Twitter | `twitter:*` preferred, `og:*` as fallback |
+| `facebook` | Facebook | Open Graph. Does not read `twitter:*` |
+| `linkedin` | LinkedIn | Open Graph, falling back to page title and meta description |
+| `discord` | Discord | Open Graph only |
+| `whatsapp` | WhatsApp | Open Graph only |
+| `slack` | Slack | Open Graph, falling back to page title and description |
+| `telegram` | Telegram | Open Graph only |
+
+Each preview carries its own `basis` string stating these rules, so the response
+explains itself without this table.
+
+<Note>
+  Where a platform's behaviour is undocumented, the resolver is deliberately
+  conservative — it assumes no `twitter:*` fallback rather than guessing one.
+  Predicting a preview that does not appear is a worse failure than predicting
+  a plainer one that does.
+</Note>
+
+## What each one returns
+
+```json
+"google": {
+  "title": "Stripe | Financial Infrastructure to Grow Your Revenue",
+  "description": "Stripe is a financial services platform that helps…",
+  "image": null,
+  "domain": "stripe.com",
+  "source": {
+    "title": "<title>",
+    "description": "description",
+    "image": null
+  },
+  "approximate": true,
+  "basis": "Search results are built from the page title and meta description; OG tags are not used.",
+  "favicon": "https://…/favicon.svg"
+}
+```
+
+| Field | What it is |
+| :--- | :--- |
+| `title`, `description`, `image` | What this platform would actually show, after its own fallback chain |
+| `source` | **Which tag each value came from.** The most useful field here. |
+| `domain` | The host as this platform displays it |
+| `approximate` | Whether the rendering is an approximation — see below |
+| `basis` | Plain-English statement of this platform's rules |
+| `favicon` | The icon this platform would use, where it uses one |
+
+## `source` is the field to read
+
+Two pages can produce an identical preview for entirely different reasons. `source` tells you which tag did the work:
+
+```json
+"source": { "title": "og:title", "description": "og:description", "image": "og:image" }
+```
+
+versus
+
+```json
+"source": { "title": "<title>", "description": "description", "image": null }
+```
+
+The second page has no Open Graph tags at all. It still previews — because platforms fall back — but you are getting whatever the fallback produces rather than what you chose. That distinction is invisible in `title` alone.
+
+## `approximate`
+
+**Every preview is `approximate: true`**, and the field exists to say so rather than to distinguish good pages from bad ones.
+
+No platform publishes its exact rendering rules, and real output depends on things invisible from the HTML: A/B tests, personalisation, the platform's own crawl cache, and layout rules that change with image aspect ratio. Google is the extreme case — search results are generated rather than rendered, and it may rewrite your title entirely if something else matches the query better.
+
+<Note>
+  `approximate: true` is not a warning about your page. It is us declining to overstate how precisely anyone can predict a third party's renderer.
+</Note>
+
+## Why Google ignores Open Graph
+
+The single most common misunderstanding this endpoint clears up.
+
+Google builds search results from `<title>` and `meta description`. It does not read `og:title` or `og:description`. A page with immaculate Open Graph tags and no `meta description` will preview beautifully on Facebook and show Google's own guess at a snippet.
+
+That is why `missing_description` is a warning even on a page with a full set of `og:` tags.
+
+## Platforms cache aggressively
+
+A preview here reflects your page **now**. What a platform shows reflects whenever it last crawled you, which can be days.
+
+After fixing tags, most platforms need to be told to look again:
+
+- Facebook and Instagram — the [Sharing Debugger](https://developers.facebook.com/tools/debug/), "Scrape Again"
+- LinkedIn — the [Post Inspector](https://www.linkedin.com/post-inspector/)
+- X — re-share; the card is refetched on a schedule
+- Slack, Discord, WhatsApp, Telegram — cache by URL for hours; a `?v=2` query parameter forces a fresh fetch
+
+<Warning>
+  If a preview here looks right but the platform still shows the old one, the tags are fixed and the platform is stale. Purge its cache rather than editing further.
+</Warning>

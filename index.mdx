@@ -1,0 +1,61 @@
+---
+title: "MetaManager"
+description: "Check how any page looks when it is shared, see what is missing, and copy the fix."
+---
+
+MetaManager reads a page's metadata and tells you three things: what tags are there, how the page will look when someone shares it on eight different platforms, and exactly what to change.
+
+One `GET` request returns all of it.
+
+<CardGroup cols={2}>
+  <Card title="Check a URL" icon="bolt" href="/getting-started/quickstart">
+    One request, one report. No key, no account, no signup.
+  </Card>
+  <Card title="Read the report" icon="file-code" href="/guides/the-report">
+    Score, metadata, previews, issues — what every field means.
+  </Card>
+  <Card title="Preview on eight platforms" icon="share-nodes" href="/guides/previews">
+    Google, X, Facebook, LinkedIn, Discord, WhatsApp, Slack, Telegram.
+  </Card>
+  <Card title="Every issue code" icon="list-check" href="/guides/issues">
+    The full reference, with what each one means and how to fix it.
+  </Card>
+</CardGroup>
+
+## Base URL
+
+```text
+https://metamanager.dev
+```
+
+## The whole API, in one line
+
+```bash
+curl 'https://metamanager.dev/inspect?url=https://example.com'
+```
+
+That works right now, from any terminal, with no credentials. The checker is free and stays free — see [rate limits](/operations/rate-limits) for the ceilings.
+
+## What comes back
+
+A single JSON document:
+
+| Field | What it holds |
+| :--- | :--- |
+| `score` | 0–100, weighted by how much each missing tag actually costs you |
+| `metadata` | Every tag found: title, description, canonical, Open Graph, Twitter, links |
+| `previews` | How the page renders on each of eight platforms |
+| `issues` | What is wrong, how much it matters, and the exact fix |
+| `redirects` | The chain followed, if any |
+
+[The report guide](/guides/the-report) walks through each one.
+
+## What it is not
+
+MetaManager checks metadata. It does not render pages, run JavaScript, take screenshots, or crawl sites.
+
+That last one matters for accuracy: **metadata injected by client-side JavaScript will not be seen**, because no crawler that reads your tags runs JavaScript either. If a preview looks wrong here, it looks wrong on Facebook too. That is the point.
+
+<Note>
+  Metadata is read from the HTML as served. This is the same view Googlebot, Slackbot and Twitterbot get — which is why a page that looks perfect in your browser can still score badly here.
+</Note>

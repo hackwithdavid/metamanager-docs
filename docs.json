@@ -1,0 +1,105 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "almond",
+  "name": "MetaManager",
+  "description": "Check how any page looks when it is shared, see what is missing, and copy the fix.",
+  "colors": {
+    "primary": "#59790F",
+    "light": "#D9FA84",
+    "dark": "#5F8410"
+  },
+  "logo": {
+    "light": "/assets/logo-on-light.svg",
+    "dark": "/assets/logo-on-dark.svg"
+  },
+  "favicon": "/assets/favicon.svg",
+  "navbar": {
+    "links": [
+      {
+        "label": "Check a URL",
+        "href": "https://metamanager.dev"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Sign in",
+      "href": "https://metamanager.dev/signin"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "icon": "book",
+        "groups": [
+          {
+            "group": "Getting started",
+            "pages": [
+              "index",
+              "getting-started/quickstart",
+              "getting-started/authentication"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/the-report",
+              "guides/previews",
+              "guides/issues",
+              "guides/fix-prompt"
+            ]
+          },
+          {
+            "group": "Reliability",
+            "pages": [
+              "operations/errors",
+              "operations/rate-limits",
+              "operations/limits"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "icon": "terminal",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/overview"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "openapi": {
+              "source": "api-reference/openapi.json",
+              "directory": "api-reference/endpoints"
+            }
+          }
+        ]
+      },
+      {
+        "tab": "Changelog",
+        "icon": "clock-rotate-left",
+        "groups": [
+          {
+            "group": "Changelog",
+            "pages": [
+              "changelog"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "fonts": {
+    "family": "Outfit",
+    "heading": {
+      "family": "Outfit",
+      "weight": 600
+    },
+    "body": {
+      "family": "Outfit"
+    }
+  }
+}

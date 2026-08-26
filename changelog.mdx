@@ -1,0 +1,20 @@
+---
+title: "Changelog"
+description: "What changed, and when."
+---
+
+<Update label="v1.0" description="The free checker">
+  **`GET /inspect`** — metadata extraction, a weighted 0–100 score, previews for
+  eight platforms, and 31 issue codes with paste-ready fixes.
+
+  - Character references are decoded, so `Ben &amp;amp; Jerry&amp;#39;s` reports as
+    `Ben & Jerry's` and length rules count what a reader sees.
+  - Social images are fetched and measured from their own header bytes, which is
+    what makes `image_dimensions_mismatch` detectable.
+  - Non-2xx pages return a structured error rather than being scored as empty
+    documents.
+  - `prompt=` produces a paste-ready AI fix prompt for HTML, Laravel, Next.js,
+    Nuxt or a framework-agnostic form. Derived after the cache, so switching
+    framework costs nothing.
+  - `GET /entitlements` reports the caller's plan and limits.
+</Update>

@@ -1,0 +1,41 @@
+---
+title: "AI fix prompts"
+description: "Turn a report into a prompt you can paste into any coding assistant."
+---
+
+Add `prompt=` and the report gains a ready-to-paste block for your framework.
+
+```bash
+curl 'https://metamanager.dev/inspect?url=https://example.com&prompt=next'
+```
+
+## Frameworks
+
+| Value | Produces |
+| :--- | :--- |
+| `html` | Plain `<meta>` tags (the default) |
+| `laravel` | `laravel-meta-manager` calls |
+| `next` | Next.js Metadata API |
+| `nuxt` | `useSeoMeta` |
+| `other` | Framework-agnostic instructions |
+
+An unrecognised value falls back to `html` rather than failing the request.
+
+## Why it is derived after the cache
+
+Reports are cached for fifteen minutes; the prompt is built from the cached
+report on the way out. Switching framework therefore costs nothing and does not
+consume a fresh check — the same cached report serves all five.
+
+## What is in it
+
+The prompt states the page, its score, and each issue with the specific change
+required. It is written to be pasted into a coding assistant without editing.
+
+<Warning>
+  Everything in a report comes from somebody else's page — titles, descriptions
+  and URLs are attacker-controlled. Values interpolated into the prompt are
+  flattened to a single line, stripped of control characters and truncated, so
+  a page cannot inject instructions into a prompt you are about to hand an
+  agent. It is still worth reading a prompt before running what it suggests.
+</Warning>

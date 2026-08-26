@@ -1,0 +1,898 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MetaManager API",
+    "version": "1.0.0",
+    "description": "Check a page's metadata, see how it previews on eight platforms, and get the fix.\n\n`/inspect` is open: no key, no account. Requests are rate limited by IP.\n\nErrors carry a stable `error` field \u2014 always check it before reading `score`, because an error response has no report in it."
+  },
+  "servers": [
+    {
+      "url": "https://metamanager.dev",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/inspect": {
+      "get": {
+        "summary": "Inspect a URL",
+        "description": "Fetch a page, read its metadata, resolve its previews and report its issues.",
+        "operationId": "inspect",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "The page to check. http or https, publicly resolvable.",
+            "example": "https://example.com"
+          },
+          {
+            "name": "prompt",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "html",
+                "laravel",
+                "next",
+                "nuxt",
+                "other"
+              ]
+            },
+            "description": "Include a paste-ready AI fix prompt for this framework. Applied after the cache, so switching costs nothing."
+          },
+          {
+            "name": "fresh",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            },
+            "description": "Bypass the 15-minute report cache."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A report.",
+            "headers": {
+              "x-ratelimit-limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Checks allowed per hour."
+              },
+              "x-ratelimit-remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-reset": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Seconds until one unit is regained."
+              },
+              "x-cache": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "hit",
+                    "miss"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    },
+                    "final_url": {
+                      "type": "string"
+                    },
+                    "status_code": {
+                      "type": "integer"
+                    },
+                    "response_time": {
+                      "type": "integer",
+                      "description": "Milliseconds to fetch the page."
+                    },
+                    "document_size": {
+                      "type": "integer"
+                    },
+                    "truncated": {
+                      "type": "boolean"
+                    },
+                    "score": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100,
+                      "description": "Weighted by consequence, not by counting tags."
+                    },
+                    "metadata": {
+                      "type": "object"
+                    },
+                    "image": {
+                      "type": "object",
+                      "nullable": true,
+                      "properties": {
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "integer",
+                          "nullable": true,
+                          "description": "Measured from the file, not the page's declaration."
+                        },
+                        "height": {
+                          "type": "integer",
+                          "nullable": true
+                        },
+                        "alt": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "size": {
+                          "type": "integer",
+                          "nullable": true
+                        },
+                        "mime": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "accessible": {
+                          "type": "boolean"
+                        },
+                        "inspected": {
+                          "type": "boolean"
+                        },
+                        "state": {
+                          "type": "string"
+                        },
+                        "declared": {
+                          "type": "object",
+                          "properties": {
+                            "width": {
+                              "type": "integer",
+                              "nullable": true
+                            },
+                            "height": {
+                              "type": "integer",
+                              "nullable": true
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "previews": {
+                      "type": "object",
+                      "properties": {
+                        "google": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "image": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "domain": {
+                              "type": "string"
+                            },
+                            "source": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "description": "Which tag each value was resolved from."
+                            },
+                            "approximate": {
+                              "type": "boolean",
+                              "description": "Always true; no platform publishes exact rules."
+                            },
+                            "basis": {
+                              "type": "string",
+                              "description": "Plain-English statement of this platform's rules."
+                            },
+                            "favicon": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          }
+                        },
+                        "x": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "image": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "domain": {
+                              "type": "string"
+                            },
+                            "source": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "description": "Which tag each value was resolved from."
+                            },
+                            "approximate": {
+                              "type": "boolean",
+                              "description": "Always true; no platform publishes exact rules."
+                            },
+                            "basis": {
+                              "type": "string",
+                              "description": "Plain-English statement of this platform's rules."
+                            },
+                            "favicon": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          }
+                        },
+                        "facebook": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "image": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "domain": {
+                              "type": "string"
+                            },
+                            "source": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "description": "Which tag each value was resolved from."
+                            },
+                            "approximate": {
+                              "type": "boolean",
+                              "description": "Always true; no platform publishes exact rules."
+                            },
+                            "basis": {
+                              "type": "string",
+                              "description": "Plain-English statement of this platform's rules."
+                            },
+                            "favicon": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          }
+                        },
+                        "linkedin": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "image": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "domain": {
+                              "type": "string"
+                            },
+                            "source": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "description": "Which tag each value was resolved from."
+                            },
+                            "approximate": {
+                              "type": "boolean",
+                              "description": "Always true; no platform publishes exact rules."
+                            },
+                            "basis": {
+                              "type": "string",
+                              "description": "Plain-English statement of this platform's rules."
+                            },
+                            "favicon": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          }
+                        },
+                        "discord": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "image": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "domain": {
+                              "type": "string"
+                            },
+                            "source": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "description": "Which tag each value was resolved from."
+                            },
+                            "approximate": {
+                              "type": "boolean",
+                              "description": "Always true; no platform publishes exact rules."
+                            },
+                            "basis": {
+                              "type": "string",
+                              "description": "Plain-English statement of this platform's rules."
+                            },
+                            "favicon": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          }
+                        },
+                        "whatsapp": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "image": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "domain": {
+                              "type": "string"
+                            },
+                            "source": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "description": "Which tag each value was resolved from."
+                            },
+                            "approximate": {
+                              "type": "boolean",
+                              "description": "Always true; no platform publishes exact rules."
+                            },
+                            "basis": {
+                              "type": "string",
+                              "description": "Plain-English statement of this platform's rules."
+                            },
+                            "favicon": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          }
+                        },
+                        "slack": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "image": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "domain": {
+                              "type": "string"
+                            },
+                            "source": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "description": "Which tag each value was resolved from."
+                            },
+                            "approximate": {
+                              "type": "boolean",
+                              "description": "Always true; no platform publishes exact rules."
+                            },
+                            "basis": {
+                              "type": "string",
+                              "description": "Plain-English statement of this platform's rules."
+                            },
+                            "favicon": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          }
+                        },
+                        "telegram": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "description": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "image": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "domain": {
+                              "type": "string"
+                            },
+                            "source": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "description": "Which tag each value was resolved from."
+                            },
+                            "approximate": {
+                              "type": "boolean",
+                              "description": "Always true; no platform publishes exact rules."
+                            },
+                            "basis": {
+                              "type": "string",
+                              "description": "Plain-English statement of this platform's rules."
+                            },
+                            "favicon": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "issues": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string",
+                            "description": "Stable identifier. Safe to branch on.",
+                            "example": "missing_og_image"
+                          },
+                          "severity": {
+                            "type": "string",
+                            "enum": [
+                              "error",
+                              "warning",
+                              "tip"
+                            ]
+                          },
+                          "importance": {
+                            "type": "string",
+                            "enum": [
+                              "required",
+                              "recommended",
+                              "optional"
+                            ]
+                          },
+                          "title": {
+                            "type": "string",
+                            "description": "Prose. May be reworded; do not match on it."
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "fix": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "Paste-ready snippets, or null where no generic fix can be correct.",
+                            "properties": {
+                              "html": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "laravel": {
+                                "type": "string",
+                                "nullable": true
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "redirects": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The URL was refused, or a parameter was missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Stable code. Branch on this."
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "upstream_status": {
+                      "type": "integer",
+                      "nullable": true,
+                      "description": "Present only on http_error."
+                    },
+                    "retry_after": {
+                      "type": "integer",
+                      "description": "Seconds. Present only on rate_limited."
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Blocked hostname or private address.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Stable code. Branch on this."
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "upstream_status": {
+                      "type": "integer",
+                      "nullable": true,
+                      "description": "Present only on http_error."
+                    },
+                    "retry_after": {
+                      "type": "integer",
+                      "description": "Seconds. Present only on rate_limited."
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Document larger than 2 MB.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Stable code. Branch on this."
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "upstream_status": {
+                      "type": "integer",
+                      "nullable": true,
+                      "description": "Present only on http_error."
+                    },
+                    "retry_after": {
+                      "type": "integer",
+                      "description": "Seconds. Present only on rate_limited."
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited.",
+            "headers": {
+              "x-ratelimit-limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Checks allowed per hour."
+              },
+              "x-ratelimit-remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-ratelimit-reset": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Seconds until one unit is regained."
+              },
+              "retry-after": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Stable code. Branch on this."
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "upstream_status": {
+                      "type": "integer",
+                      "nullable": true,
+                      "description": "Present only on http_error."
+                    },
+                    "retry_after": {
+                      "type": "integer",
+                      "description": "Seconds. Present only on rate_limited."
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The site answered with an error, or could not be reached.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Stable code. Branch on this."
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "upstream_status": {
+                      "type": "integer",
+                      "nullable": true,
+                      "description": "Present only on http_error."
+                    },
+                    "retry_after": {
+                      "type": "integer",
+                      "description": "Seconds. Present only on rate_limited."
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "The site did not respond in time.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Stable code. Branch on this."
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "upstream_status": {
+                      "type": "integer",
+                      "nullable": true,
+                      "description": "Present only on http_error."
+                    },
+                    "retry_after": {
+                      "type": "integer",
+                      "description": "Seconds. Present only on rate_limited."
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/entitlements": {
+      "get": {
+        "summary": "Current plan and limits",
+        "description": "Reports the caller's plan. Anonymous without a session cookie.",
+        "operationId": "entitlements",
+        "responses": {
+          "200": {
+            "description": "Limits.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "plan": {
+                      "type": "string",
+                      "enum": [
+                        "anonymous",
+                        "free",
+                        "pro"
+                      ]
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "checks_per_hour": {
+                      "oneOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "saved_urls": {
+                      "oneOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ],
+                      "description": "'unlimited' as a string, because Infinity is not JSON."
+                    },
+                    "projects": {
+                      "oneOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "api": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "Service is up.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "engine": {
+                      "type": "string",
+                      "example": "v1"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
