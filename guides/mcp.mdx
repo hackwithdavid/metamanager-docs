@@ -34,6 +34,25 @@ your client at the server with the key as a bearer token.
 Exact configuration differs by client; what every client needs is the URL and
 that header.
 
+## Teach your agent the workflow
+
+Connecting the server gives your agent the tools. A companion **skill** teaches
+it when to reach for them — and, more importantly, that a metadata change is not
+finished until it has been re-checked.
+
+```bash
+npx skills add davmixcool/skills --skill metamanager
+```
+
+For Claude Code you can also copy it in directly:
+
+```bash
+cp -r skills/metamanager ~/.claude/skills/
+```
+
+The skill is optional. Without it your agent can still call every tool; it just
+has to be told what to do with them.
+
 ## The tools
 
 | Tool | What it does | Needs |
