@@ -1,0 +1,70 @@
+---
+title: "Sharing a report"
+description: "Publish an audit at a public link, and export it as a PDF for a client handoff."
+---
+
+An audit lives in your dashboard, behind your sign-in. A **share link** publishes
+one read-only copy of it at a public URL, so you can hand a client the result
+instead of describing it.
+
+```text
+https://metamanager.dev/reports/Go3JHiSGE4IXCLqt51hSXw
+```
+
+Whoever opens it needs no account, and can change nothing.
+
+## Publishing
+
+Open a finished audit, choose **Share**, then **Create a public link**. Copy the
+address and send it.
+
+Pressing Share again does not create a second link — you get the same one back,
+so a link can always be found again and always revoked.
+
+The panel also shows how many times the link has been opened, which is usually
+the fastest way to tell whether the person you sent it to has looked at it.
+
+## What the reader sees
+
+| | Free | Pro |
+| :--- | :--- | :--- |
+| Site, date, score | Yes | Yes |
+| Issue categories and page counts | Yes | Yes |
+| Page-by-page breakdown | — | Yes |
+| Export to PDF | — | Yes |
+
+A report shared from a Free account says on the page that it is a summary, so a
+client is never left guessing whether a short report means a clean site.
+
+The limit follows the account, not the link. Upgrading to Pro widens a link you
+have already sent — you do not need to publish a new one.
+
+<Note>
+  Shared reports are served with `noindex`, so they do not appear in search
+  results. Treat the link itself as the secret: anyone who has it can read the
+  report.
+</Note>
+
+## Exporting a PDF
+
+Pro accounts get **Save as PDF**, on both the audit in your dashboard and the
+shared report page. You do not have to publish a link to export one.
+
+The PDF is the report — same numbers, same issues, same affected URLs — with the
+navigation removed and page breaks placed so a table does not split mid-row.
+Every affected URL is printed in full, because a paper report you cannot type a
+URL out of is not much use.
+
+It contains the site, the audit date, the overall score, the three score bands,
+every issue category with how many pages carry it, and the page list with each
+page's score and issues.
+
+## Revoking
+
+**Revoke this link** stops it working immediately. Anyone who still has the
+address is told the report is no longer available.
+
+You can publish again afterwards, but it will be a different address — the old
+one stays dead.
+
+Deleting an audit also deletes any link to it.

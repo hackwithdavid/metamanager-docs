@@ -3,6 +3,26 @@ title: "Changelog"
 description: "What changed, and when."
 ---
 
+<Update label="v1.6" description="Shareable reports and PDF export">
+  **Hand an audit to somebody who does not have an account.** Open a finished
+  audit, choose **Share**, and publish a read-only copy at a public link.
+
+  - The link works until you revoke it, and revoking takes effect immediately.
+  - Sharing the same audit twice returns the same link rather than a second one,
+    so a link can always be found again — and always withdrawn.
+  - The panel shows how many times the link has been opened.
+  - Shared reports are served `noindex`; the link itself is the secret.
+
+  Free publishes a **summary** — site, date, score and issue categories. Pro adds
+  the page-by-page breakdown. The limit follows the account rather than the
+  link, so upgrading widens a link you have already sent.
+
+  **Pro can export to PDF**, from the dashboard or from the shared page, without
+  publishing a link first. The PDF is the report rather than a second rendering
+  of it: same numbers, navigation removed, page breaks placed so a table does not
+  split mid-row, and every affected URL printed in full.
+</Update>
+
 <Update label="v1.5" description="Audit comparison and alert recipients">
   **See what changed between two audits.** Open a finished audit and choose
   **What changed** to compare it with the previous run of the same site: new
