@@ -106,3 +106,32 @@ A page that could not be read shows what happened rather than a score:
 Transient failures are retried once before being recorded. If a page still
 shows a 5xx, opening its report will usually succeed — the site was under load
 during the crawl, and that page is probably fine.
+
+## Comparing two audits
+
+Open a finished audit and choose **What changed** to see it against the previous
+finished audit of the same site.
+
+| Group | What it lists |
+| :--- | :--- |
+| **New issues** | Pages that gained an issue they did not have |
+| **Fixed** | Pages that lost one |
+| **Changed tags** | The watched fields that differ, with before and after |
+| **New pages** | Pages found this time and not last time |
+| **Gone** | Pages found last time and not this time |
+
+The baseline is the most recent finished audit of the same site, whether you
+started it by hand or a [monitor](/guides/monitoring) did — so a scheduled run
+and a manual one can be compared with each other. The first audit of a site has
+nothing to compare against, and says so.
+
+The seven watched fields are the same ones monitoring uses: `title`,
+`description`, `canonical`, `og:title`, `og:description`, `og:image` and
+`twitter:card`. Whitespace is normalised, so reflowed templates are not changes.
+
+<Note>
+  Audits run before MetaManager began recording page metadata cannot be compared
+  tag by tag. The comparison says so rather than reporting every tag as changed.
+  New and fixed issues, and pages that came or went, are still accurate for
+  those audits.
+</Note>

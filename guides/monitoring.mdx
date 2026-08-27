@@ -88,6 +88,25 @@ Full report: https://metamanager.dev/audits#aud_...
 Pages that changed but did not break are listed after the problems, with their
 before and after, so a skim reaches what is wrong first.
 
+## Where the email goes
+
+By default, to the address you sign in with.
+
+Each monitor can send its alerts somewhere else instead — a shared inbox, an
+on-call address, or whoever actually looks after that site. Open the monitor,
+choose **Settings**, and enter the address.
+
+A confirmation is sent to that address first, and the link in it is valid for
+**24 hours**. Until it is confirmed, alerts keep going to the account holder —
+so a typo means you keep receiving them, rather than nobody receiving them.
+
+<Note>
+  The recipient is per monitor, not per account. Two sites watched by the same
+  account can alert two different teams.
+</Note>
+
+To go back to the account holder, clear the address on that monitor.
+
 ## Scheduling
 
 A new monitor runs on the next tick rather than after a full interval, so you

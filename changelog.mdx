@@ -3,6 +3,79 @@ title: "Changelog"
 description: "What changed, and when."
 ---
 
+<Update label="v1.5" description="Audit comparison and alert recipients">
+  **See what changed between two audits.** Open a finished audit and choose
+  **What changed** to compare it with the previous run of the same site: new
+  issues, fixed issues, changed tags with their before and after, pages that
+  appeared, and pages that are gone.
+
+  - Compares against the most recent finished audit of the same site, so a
+    manual run and a scheduled one can be compared with each other.
+  - Audits crawled before metadata capture existed cannot be diffed tag by tag.
+    Rather than reporting every tag as changed, the comparison says so and still
+    reports issue and page changes, which remain accurate.
+
+  **Alerts can go somewhere other than the account holder.** Each monitor takes
+  its own recipient, confirmed by a link valid for 24 hours. Until it is
+  confirmed, alerts keep going to the account holder.
+
+  **Projects now scope the whole dashboard.** A project holds a site's saved
+  URLs, its audits and its monitors, and the sidebar switcher applies that scope
+  across every page. Anything filed nowhere is reachable under **Unfiled**.
+</Update>
+
+<Update label="v1.4" description="Scheduled monitoring">
+  **Watch a site and get an email when its metadata breaks.** Pro watches up to
+  three sites, daily or weekly. Scheduled runs are checked every 15 minutes and
+  do not spend the monthly audit allowance.
+
+  - Seven fields are watched per page: `title`, `description`, `canonical`,
+    `og:title`, `og:description`, `og:image` and `twitter:card`.
+  - Whitespace is normalised before comparison, so a deploy that reflows
+    templates is not a change.
+  - You are emailed for new issues and for pages that have vanished — not for a
+    reworded description. A site that stays broken produces one email, not one
+    per run.
+  - The first run of a monitor never emails: there is nothing to compare it to.
+</Update>
+
+<Update label="v1.3" description="Site audits">
+  **Crawl a whole site rather than one page.** Free audits 25 pages once a
+  month; Pro audits 500 pages, 50 times a month. Audits are metered separately
+  from the hourly check quota, so one large crawl cannot exhaust it.
+
+  - `robots.txt` is fetched first and obeyed, including `Crawl-delay`, with
+    longest-match precedence and `Allow` winning ties.
+  - One request at a time per audit, with a delay between them, backing off when
+    a server struggles.
+  - Same origin as the root URL only, and every discovered URL passes the same
+    validation that protects `GET /inspect` — a crawler that trusted `href`
+    values would be an SSRF engine.
+  - The site score is the unweighted mean of page scores, reported alongside the
+    three buckets, because the distribution is what a mean hides.
+  - The bot identifies itself as `MetaManagerBot/1.0` and
+    [explains itself](https://metamanager.dev/bot).
+</Update>
+
+<Update label="v1.2" description="Pro plans">
+  **Subscriptions, monthly or yearly, through Polar.** Entitlements are resolved
+  from the account rather than the session, so a plan change takes effect on the
+  next request.
+
+  Pro raises checks to 1,000 an hour and makes saved URLs and projects
+  unlimited. Everyone keeps the free checker.
+</Update>
+
+<Update label="v1.1" description="Accounts, saved URLs and projects">
+  **Sign in with an emailed link — no password to choose, store or leak.**
+
+  - Save URLs and re-check them from the dashboard: three on Free, unlimited on
+    Pro.
+  - Group them into projects: one on Free, unlimited on Pro.
+  - Signed-in Free accounts get 100 checks an hour, up from the 50 available
+    without an account.
+</Update>
+
 <Update label="v1.0" description="The free checker">
   **`GET /inspect`** — metadata extraction, a weighted 0–100 score, previews for
   eight platforms, and 31 issue codes with paste-ready fixes.
