@@ -41,6 +41,22 @@ outright where possible — `truncated: true` on the report tells you it happene
 Everything that matters is normally in `<head>`, so a truncated document usually
 still produces a complete report.
 
+## Crawling
+
+A [site audit](/guides/site-audits) fetches one page at a time with a pause
+between requests, and backs off further when a site starts returning errors. A
+declared `Crawl-delay` in `robots.txt` is honoured.
+
+| Limit | Value |
+| :--- | :--- |
+| Requests in flight per audit | 1 |
+| Minimum gap between requests | 300 ms, or your `Crawl-delay` |
+| Redirects followed per page | 3 |
+| Retries on a transient failure | 1 |
+
+Each run also has a time budget scaled to its page ceiling. Reaching it ends the
+audit with what it covered, reported as such rather than as a failure.
+
 ## Images
 
 Social images are fetched to measure them, and are subject to the same SSRF

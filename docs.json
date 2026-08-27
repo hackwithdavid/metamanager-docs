@@ -44,6 +44,7 @@
             "group": "Guides",
             "pages": [
               "guides/the-report",
+              "guides/site-audits",
               "guides/previews",
               "guides/issues",
               "guides/fix-prompt"

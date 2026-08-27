@@ -5,11 +5,15 @@ description: "How many checks an hour, how they are counted, and what the header
 
 ## The limits
 
-| Plan | Checks per hour | Saved URLs | Projects |
-| :--- | :--- | :--- | :--- |
-| Anonymous | 50 | — | — |
-| Free | 100 | 3 | 1 |
-| Pro | 1,000 | unlimited | unlimited |
+| Plan | Checks per hour | Saved URLs | Projects | Audit pages | Audits per month |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| Anonymous | 50 | — | — | — | — |
+| Free | 100 | 3 | 1 | 25 | 1 |
+| Pro | 1,000 | unlimited | unlimited | 500 | 50 |
+
+[Site audits](/guides/site-audits) are metered separately from the hourly check
+quota. One 500-page audit would otherwise consume half a Pro account's hour, and
+the two features would starve each other.
 
 Signing in raises your limit rather than lowering it. A free account can always
 do more than a stranger — otherwise signing in would be a downgrade.

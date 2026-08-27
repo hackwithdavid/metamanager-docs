@@ -1,0 +1,108 @@
+---
+title: "Site audits"
+description: "Crawl a whole site and see every page's metadata, score and issues in one report."
+---
+
+The checker answers for one page. An audit answers for a site: it crawls from
+an address you give it, checks every page it finds, and reports the whole thing
+as one score with the issues grouped across pages.
+
+Audits run in [your dashboard](https://metamanager.dev/audits). They are a Pro
+feature, with a smaller allowance on Free.
+
+<Note>
+  There is no public API for audits yet. `/inspect` is open and documented here;
+  audits are driven from the browser with a session. Programmatic access arrives
+  with API keys — see [authentication](/getting-started/authentication).
+</Note>
+
+## What it crawls
+
+Starting from the URL you give it, an audit follows links **on the same origin
+only**. `blog.example.com` is a different origin, and auditing it under the
+parent's name would report on something you did not ask about.
+
+Discovery is, in order:
+
+1. `robots.txt` — for the rules, and for any `Sitemap:` it declares
+2. `sitemap.xml` — the site's own statement of what matters
+3. Links found on the pages themselves, breadth-first
+
+Breadth-first matters when a page limit truncates a run: what you get is the
+pages nearest the front door, not one deep branch.
+
+Assets are skipped without spending a request — images, stylesheets, PDFs,
+fonts and the rest are recognised by extension.
+
+## What it will not do
+
+**It obeys `robots.txt`.** A disallowed path is never fetched. It still appears
+in the report, marked as skipped, so you know the crawler declined rather than
+missed it.
+
+**It goes one page at a time**, with a pause between requests, and slows down
+further if your server starts returning errors. If your `robots.txt` declares a
+`Crawl-delay`, that is used instead.
+
+Our crawler identifies itself on every request, and [explains itself](https://metamanager.dev/bot):
+
+```text
+MetaManagerBot/1.0 (+https://metamanager.dev/bot)
+```
+
+## Limits
+
+| | Free | Pro |
+| :--- | ---: | ---: |
+| Pages per audit | 25 | 500 |
+| Audits per month | 1 | 50 |
+
+The page ceiling is recorded on each run, so a historical audit still explains
+why it stopped where it did after your plan has changed.
+
+An audit also has a time budget that scales with its page limit. A run that
+reaches it stops and reports what it covered rather than failing — the report
+says so.
+
+<Warning>
+  The monthly allowance is spent when an audit **starts**, not when it finishes,
+  and deleting an audit does not return it. Usage records what was run.
+</Warning>
+
+## Reading the report
+
+**The site score is the unweighted mean of the pages that could be scored.**
+Pages that could not be read are counted as crawled but excluded from the mean:
+a 404 has no metadata to score, and counting it as zero would report a site as
+broken because one link was stale.
+
+It is a mean, so it hides the distribution. That is what the three buckets are
+for:
+
+| Bucket | Score |
+| :--- | :--- |
+| Excellent | 80 and above |
+| Needs work | 50 to 79 |
+| Critical | below 50 |
+
+A hundred perfect pages and twenty broken ones still average well. The counts
+are what tell you that.
+
+**Issue categories** group every [issue code](/guides/issues) across the site
+with the number of pages carrying it — the fastest way to find the one missing
+tag that affects two hundred pages. Selecting one filters the page list.
+
+## When a page shows an error
+
+A page that could not be read shows what happened rather than a score:
+
+| Shown | Means |
+| :--- | :--- |
+| `HTTP 404` | The page is not there. The link pointing at it is stale. |
+| `HTTP 502`, `503`, `429` | Your server was busy at that moment. Usually not a problem with the page. |
+| `Timed out` | No response in time. |
+| `Blocked by robots.txt` | Your own rules told us not to fetch it. |
+
+Transient failures are retried once before being recorded. If a page still
+shows a 5xx, opening its report will usually succeed — the site was under load
+during the crawl, and that page is probably fine.
