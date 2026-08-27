@@ -62,6 +62,8 @@ const expected = new Set([
   'GET /inspect',
   'GET /entitlements',
   'GET /health',
+  'GET /api/issues',
+  'GET /api/issues/{code}',
 ]);
 
 const actual = new Set();
@@ -79,14 +81,19 @@ for (const route of actual) {
 }
 
 /*
- * Routes that exist but are not a public API. /auth and /api are the web
- * application's own surface, cookie-authenticated and not for third parties;
- * /polar is a payment provider's webhook. Documenting any of them would invite
- * people to build against something that is free to change without notice.
+ * Routes that exist but are not a public API. /auth is the sign-in flow and
+ * /polar is a payment provider's webhook; documenting either would invite people
+ * to build against something that is free to change without notice.
  *
- * /health is deliberately NOT here — it is a documented public endpoint.
+ * /api was on this list until Phase 7, on the grounds that it was the web
+ * application's own cookie-authenticated surface. API keys made that false: it
+ * is now a public, key-authenticated API. It is NOT blanket-allowed though —
+ * the `expected` set above is what admits an /api route, so adding one to the
+ * spec without deciding to document it still fails.
+ *
+ * /health is deliberately absent too — it is a documented public endpoint.
  */
-const operatorPrefixes = ['/auth', '/api', '/polar', '/admin', '/internal'];
+const operatorPrefixes = ['/auth', '/polar', '/admin', '/internal'];
 for (const path of Object.keys(openapi.paths ?? {})) {
   if (operatorPrefixes.some((prefix) => path === prefix || path.startsWith(`${prefix}/`))) {
     failures.push(`Operator route appears in OpenAPI: ${path}`);

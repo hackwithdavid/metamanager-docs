@@ -1,0 +1,82 @@
+---
+title: "MCP server"
+description: "Connect your AI agent to MetaManager so it can check pages, read audits and verify its own fixes."
+---
+
+MetaManager runs a remote [MCP](https://modelcontextprotocol.io) server, so an
+agent you already use can check pages, read your audits, and confirm that a fix
+actually worked.
+
+That last part is the point. An agent can check a page, read exactly what is
+wrong, edit your templates, then **check again and see the score move** — a loop
+with a verifiable end, rather than a suggestion you have to evaluate yourself.
+
+```text
+https://mcp.metamanager.dev
+```
+
+## Connecting
+
+Create an API key at [your account](https://metamanager.dev/account), then point
+your client at the server with the key as a bearer token.
+
+```json
+{
+  "mcpServers": {
+    "metamanager": {
+      "url": "https://mcp.metamanager.dev",
+      "headers": { "Authorization": "Bearer mm_live_..." }
+    }
+  }
+}
+```
+
+Exact configuration differs by client; what every client needs is the URL and
+that header.
+
+## The tools
+
+| Tool | What it does | Needs |
+| :--- | :--- | :--- |
+| `check_url` | Score one page and list its issues | Any plan |
+| `get_fix_prompt` | Framework-specific instructions to fix a page | Any plan |
+| `explain_issue` | What an issue code means and how much it weighs | Any plan |
+| `list_audits` | Audits on the account, newest first | Pro |
+| `get_audit` | One audit in full, filterable by issue or severity | Pro |
+| `compare_audits` | What changed since the previous run of a site | Pro |
+| `start_audit` | Crawl a whole site | Pro, **write** |
+| `list_monitors` | Sites watched on a schedule | Pro |
+| `list_saved_urls` / `save_url` | Read and add saved URLs | Pro, `save_url` needs **write** |
+
+## What it costs
+
+`check_url`, `get_fix_prompt` and `explain_issue` draw only on your hourly rate
+limit, so an agent can use them freely — including to re-check a page after every
+edit, which is exactly what you want it doing.
+
+`start_audit` spends one of your **monthly audits** and takes minutes rather than
+seconds. That is why it needs a key with write access: an agent in a loop can
+exhaust a month's allowance without noticing, and giving that power away should
+be a decision rather than a default.
+
+<Note>
+  Every key on your account shares one hourly bucket. Connecting three agents
+  with three keys does not give you three times the limit.
+</Note>
+
+## What a Free key reaches
+
+Single-page work: `check_url`, `get_fix_prompt` and `explain_issue`, at Free's
+100 checks an hour. The Pro tools answer with a message saying they need Pro,
+which your agent will report rather than retry.
+
+## If something goes wrong
+
+Errors come back as readable sentences rather than status codes, and say whether
+retrying will help:
+
+- **Not authenticated** — the key is missing, wrong, or revoked. Not retryable.
+- **This API key is read-only** — the tool needs a key with write access. Not
+  retryable with that key.
+- **This endpoint needs Pro** — not retryable on the current plan.
+- **Limit reached** — the hourly rate limit; retryable after waiting.

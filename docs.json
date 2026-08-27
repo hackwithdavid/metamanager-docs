@@ -48,6 +48,7 @@
               "guides/monitoring",
               "guides/projects",
               "guides/sharing",
+              "guides/mcp",
               "guides/previews",
               "guides/issues",
               "guides/fix-prompt"

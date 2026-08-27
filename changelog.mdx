@@ -3,6 +3,29 @@ title: "Changelog"
 description: "What changed, and when."
 ---
 
+<Update label="v1.7" description="API keys and an MCP server">
+  **Your agent can now drive MetaManager.** A remote MCP server at
+  `mcp.metamanager.dev` gives an AI agent tools to check a page, read its issues,
+  apply a fix, and re-check to confirm the score moved.
+
+  - Create an API key at your account and send it as a bearer token; the whole
+    `/api` surface works without a cookie.
+  - Keys are **read-only** unless you give them write access, because starting an
+    audit spends a monthly allowance and an agent in a loop will not notice.
+  - The key is shown once. Only a hash is stored, so it cannot be recovered —
+    revoke and create another instead.
+  - Every key on an account shares one hourly bucket. Ten keys are not ten times
+    the quota.
+  - A **Free** key is real: single-page checks, fix prompts and the issue
+    catalogue, at Free's 100 an hour. The heavier tools say they need Pro.
+
+  **AI metadata suggestions have been dropped**, not postponed. The fix prompt
+  already hands your own assistant everything it needs, and generating copy
+  ourselves would have added cost and put a prompt-injection surface behind our
+  own key — the pages we read are written by the people we would be reading them
+  for. Letting your agent use MetaManager is the better shape.
+</Update>
+
 <Update label="v1.6" description="Shareable reports and PDF export">
   **Hand an audit to somebody who does not have an account.** Open a finished
   audit, choose **Share**, and publish a read-only copy at a public link.

@@ -893,6 +893,60 @@
           }
         }
       }
+    },
+    "/api/issues": {
+      "get": {
+        "summary": "List every issue MetaManager checks for",
+        "description": "The rule catalogue: code, title, severity, importance and score weight. Reachable with any key, including Free.",
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The catalogue."
+          }
+        }
+      }
+    },
+    "/api/issues/{code}": {
+      "get": {
+        "summary": "Explain one issue code",
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "missing_og_image"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The rule."
+          },
+          "404": {
+            "description": "No such issue code."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "A MetaManager API key, created at https://metamanager.dev/account. Read-only unless issued with write access."
+      }
     }
   }
 }

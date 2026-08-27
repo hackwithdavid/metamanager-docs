@@ -5,11 +5,11 @@ description: "How many checks an hour, how they are counted, and what the header
 
 ## The limits
 
-| Plan | Checks per hour | Saved URLs | Projects | Audit pages | Audits per month | Monitors | Sharing | PDF |
-| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Anonymous | 50 | — | — | — | — | — | — | — |
-| Free | 100 | 3 | 1 | 25 | 1 | — | summary | — |
-| Pro | 1,000 | unlimited | unlimited | 500 | 50 | 3 | full | yes |
+| Plan | Checks per hour | Saved URLs | Projects | Audit pages | Audits per month | Monitors | Sharing | PDF | API keys |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Anonymous | 50 | — | — | — | — | — | — | — | — |
+| Free | 100 | 3 | 1 | 25 | 1 | — | summary | — | 1 |
+| Pro | 1,000 | unlimited | unlimited | 500 | 50 | 3 | full | yes | 10 |
 
 [Site audits](/guides/site-audits) are metered separately from the hourly check
 quota, and [scheduled runs](/guides/monitoring) are not metered at all — the
@@ -73,3 +73,12 @@ A rate-limited login still answers `202` with the usual message, because saying
 
 It fails **open**. A rate limiter that is down should not take the checker down
 with it.
+
+## API keys share the account's bucket
+
+Every API key on an account counts against the **same** hourly limit your
+browser does. Creating ten keys does not give you ten times the quota — the
+bucket is the account, not the key.
+
+A request with a key that does not resolve is rejected outright rather than
+falling back to an anonymous, IP-based limit.
