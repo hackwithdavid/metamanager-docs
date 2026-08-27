@@ -1,0 +1,111 @@
+---
+title: "Monitoring"
+description: "Re-audit a site on a schedule and get an email when its metadata breaks."
+---
+
+An audit tells you how a site looks today. A monitor tells you when that
+changes — it re-runs the audit on a schedule, compares it to the last one, and
+emails you when something breaks.
+
+Monitors are configured in [your dashboard](https://metamanager.dev/audits) and
+are a Pro feature.
+
+| | Free | Pro |
+| :--- | ---: | ---: |
+| Sites watched | — | 3 |
+| Frequency | — | Daily or weekly |
+
+<Note>
+  **Scheduled runs do not spend your monthly audit allowance.** One daily
+  monitor would otherwise consume thirty of a Pro account's fifty audits and
+  crowd out checking pages by hand. The cap on how many sites you watch is what
+  bounds the crawling instead.
+</Note>
+
+## What counts as a change
+
+Seven fields are compared between runs, page by page:
+
+| Field |
+| :--- |
+| `title` |
+| `description` |
+| `canonical` |
+| `og:title` |
+| `og:description` |
+| `og:image` |
+| `twitter:card` |
+
+These are the ones that decide how a page looks when it is shared, or where
+search sends people. A change is reported with both values:
+
+```text
+og:title changed
+
+  before: My Product — AI Analytics
+  after:  My Product
+```
+
+**Whitespace is not a change.** Values are compared after collapsing runs of
+spaces and newlines, so a deploy that reflows your templates does not report
+every page as different.
+
+## What earns an email
+
+Not everything that changes. You are emailed when:
+
+- a page gains an issue it did not have
+- a page that was reachable no longer is
+
+You are **not** emailed for a reworded description, a retitled page, or an issue
+being fixed. Those still appear in the audit; they do not warrant an
+interruption.
+
+<Warning>
+  This restraint is deliberate. Monitoring that reports every content edit gets
+  filtered into a folder nobody opens, and the one alert that mattered goes with
+  it.
+</Warning>
+
+The first run of a new monitor never emails — there is nothing to compare it
+against, and every existing issue would look new.
+
+A site that stays broken produces **one** email, not one per run. Alerts have a
+cooldown of about a day.
+
+## What the email says
+
+```text
+MetaManager found 2 new metadata issues on example.com
+
+/blog/new-product
+  - missing og image
+  - missing description
+
+Full report: https://metamanager.dev/audits#aud_...
+```
+
+Pages that changed but did not break are listed after the problems, with their
+before and after, so a skim reaches what is wrong first.
+
+## Scheduling
+
+A new monitor runs on the next tick rather than after a full interval, so you
+see the first result within about fifteen minutes.
+
+After that, each run is scheduled from its **slot** rather than from when the
+previous crawl finished — a daily monitor stays on its hour instead of drifting
+later every day by however long the crawl took.
+
+Pausing a monitor stops it without losing its history. Resuming schedules the
+next run from now, so a monitor paused for a month does not immediately audit
+your site several times over to catch up.
+
+## What a monitored run does to your site
+
+Exactly what a manual [site audit](/guides/site-audits) does: one page at a
+time, obeying `robots.txt`, backing off if your server starts returning errors.
+A weekly monitor of a 200-page site is 200 requests a week.
+
+If that is more than you want, `robots.txt` is the control — our crawler
+[explains itself](https://metamanager.dev/bot) and obeys it.

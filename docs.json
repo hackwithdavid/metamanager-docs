@@ -45,6 +45,7 @@
             "pages": [
               "guides/the-report",
               "guides/site-audits",
+              "guides/monitoring",
               "guides/previews",
               "guides/issues",
               "guides/fix-prompt"
