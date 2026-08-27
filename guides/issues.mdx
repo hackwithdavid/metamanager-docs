@@ -349,6 +349,16 @@ The page declares N by N, but the file is N by N. Platforms that trust the decla
 Laravel: `Meta::image(asset('og.png'), width: 600, height: 315);`
 
 
+### `og_image_too_heavy`
+
+**Social image is heavy** — tip, recommended, no score impact.
+
+Your social image is N KB. Nothing will refuse it — the platform limits are several megabytes — but every service that unfurls your link refetches this file, and a 1200 by 630 image usually compresses to well under 500 KB with no visible loss.
+
+Only raised when the image was actually fetched and measured; a declared size proves nothing about the file.
+
+<Note>No generic fix: re-exporting or recompressing is specific to your image, so `fix` is `null`.</Note>
+
 ## Consistency and URLs
 
 ### `metadata_url_not_absolute`

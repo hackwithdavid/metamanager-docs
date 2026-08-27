@@ -3,6 +3,20 @@ title: "Changelog"
 description: "What changed, and when."
 ---
 
+<Update label="v1.8" description="A check for heavy social images">
+  **New issue code: `og_image_too_heavy`.** Every service that unfurls your link
+  refetches your `og:image`, and a 1200 by 630 preview usually compresses to well
+  under 500 KB. Nothing rejects a larger one — the platform limits are several
+  megabytes — so this is a tip, raised only when the image was actually fetched
+  and measured.
+
+  It carries **no score impact**, deliberately. The score is earned over
+  applicable weight, so a weighted rule would change the denominator and move
+  every historical score at once — which audit comparison would report as a
+  change on every page, and monitoring would email about. A new observation must
+  not rewrite old measurements.
+</Update>
+
 <Update label="v1.7" description="API keys and an MCP server">
   **Your agent can now drive MetaManager.** A remote MCP server at
   `mcp.metamanager.dev` gives an AI agent tools to check a page, read its issues,
