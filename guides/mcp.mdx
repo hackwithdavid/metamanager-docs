@@ -12,7 +12,7 @@ wrong, edit your templates, then **check again and see the score move** — a lo
 with a verifiable end, rather than a suggestion you have to evaluate yourself.
 
 ```text
-https://mcp.metamanager.dev
+https://mcp.metamanager.dev/mcp
 ```
 
 ## Connecting
@@ -24,7 +24,7 @@ your client at the server with the key as a bearer token.
 {
   "mcpServers": {
     "metamanager": {
-      "url": "https://mcp.metamanager.dev",
+      "url": "https://mcp.metamanager.dev/mcp",
       "headers": { "Authorization": "Bearer mm_live_..." }
     }
   }
@@ -33,6 +33,25 @@ your client at the server with the key as a bearer token.
 
 Exact configuration differs by client; what every client needs is the URL and
 that header.
+
+For **Claude Code**, one command does it:
+
+```bash
+claude mcp add --transport http metamanager https://mcp.metamanager.dev/mcp \
+  --header "Authorization: Bearer mm_live_..." \
+  -s user
+```
+
+<Warning>
+  Do not use `-s project`. That scope writes `.mcp.json`, which is meant to be
+  committed and shared — your key would go into version control with it. `-s user`
+  keeps the key in your own configuration and makes MetaManager available in
+  every project.
+</Warning>
+
+The bare host without `/mcp` also works, so an existing configuration keeps
+running. Other paths do not: a typo returns a 404 naming the right address
+rather than appearing to succeed.
 
 ## Teach your agent the workflow
 
