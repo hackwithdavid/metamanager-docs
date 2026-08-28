@@ -3,6 +3,28 @@ title: "Changelog"
 description: "What changed, and when."
 ---
 
+<Update label="v1.10" description="Social cards in your own script">
+  **Cards now draw in Japanese, Chinese, Korean, Cyrillic and Greek.** Until now
+  the renderer shipped a Latin-only face, so a Japanese or Russian page got a
+  card full of empty boxes — and got it with a confident `200`, which is the
+  worst way to be wrong.
+
+  - Faces are chosen from the text itself, not from the page's language tag, so
+    an English-tagged page full of Japanese still draws correctly.
+  - Traditional and Simplified Chinese are told apart by the page's own `lang`,
+    since most Han characters are shared and the text alone cannot decide.
+
+  **Some scripts are deliberately declined.** Arabic, Hebrew and the Indic
+  scripts are drawn as a plain card showing the page's address instead of its
+  title. That is not an oversight and it is not about fonts: our renderer lays
+  words out left to right and does not reshape them, so Arabic would come out
+  with each word correct and *the sentence in reverse reading order* — a card
+  that looks right and reads backwards. We would rather show less than show
+  something untrue about your page.
+
+  Cards that fall back this way carry an `x-mm-degraded` header saying why.
+</Update>
+
 <Update label="v1.9" description="Generated social cards">
   **One line in your template gives every page a link preview image.** The card
   is drawn from that page's own title and description, in colours you choose,

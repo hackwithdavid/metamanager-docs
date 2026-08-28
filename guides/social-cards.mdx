@@ -25,6 +25,25 @@ generate at build time.
   our mark — a real card uses yours and carries neither.
 </Tip>
 
+## Languages and scripts
+
+Cards draw in the page's own script. Japanese, Chinese (Simplified and
+Traditional), Korean, Cyrillic, Greek and the extended Latin alphabets all
+render from the page's real title, with no configuration.
+
+<Warning>
+  Arabic, Hebrew and the Indic scripts are **not** drawn. Those pages get a plain
+  card showing the site's address instead of the title.
+
+  This is a limitation of how we lay out text, not of the fonts. We place words
+  left to right without reshaping them, which for Arabic produces a card where
+  every word is correct but the sentence reads backwards — wrong in a way that
+  looks right. A card that says less is better than one that misrepresents your
+  page, so we decline instead.
+
+  These cards carry an `x-mm-degraded` response header naming the reason.
+</Warning>
+
 ## Setting it up
 
 In your account, under **Social cards**:
