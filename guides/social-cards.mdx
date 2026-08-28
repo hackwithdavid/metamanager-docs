@@ -67,7 +67,13 @@ The `banner` layout draws a picture behind the text. Name it explicitly:
 
 We fetch it once when the card is drawn and cache it with the card, so it costs
 one request per page per day rather than one per share. PNG, JPEG, WebP and GIF,
-up to a megabyte.
+up to 4 MB &mdash; enough for an unoptimised photograph straight from a stock
+library.
+
+A card carrying a photograph comes back as **JPEG**; every other card is a PNG.
+That is not a preference, it is arithmetic: the same photographic card is 896 KB
+as a PNG and 64 KB as a JPEG, and 896 KB is past the point our own checker calls
+a preview image too heavy. Flat cards go the other way, so they stay PNG.
 
 **You have to name it.** We will not go looking for a picture in your markup: the
 first image on a page is a logo, an avatar or a tracking pixel about as often as
@@ -75,7 +81,10 @@ it is the one you meant, and a card is not the place to find that out.
 
 <Note>
   A card whose image cannot be fetched &mdash; wrong address, too large, too slow,
-  not an image &mdash; draws without it rather than failing. The text is legible
+  not an image &mdash; draws without it rather than failing, and says why in an
+  `x-mm-degraded` header. The dashboard preview and the demo on our home page
+  both tell you directly, because a browser cannot check an image's size on
+  another domain for itself. The text is legible
   either way: `banner` puts a gradient between the picture and the words, because
   an image chosen for how it looks is rarely one chosen as a background.
 </Note>

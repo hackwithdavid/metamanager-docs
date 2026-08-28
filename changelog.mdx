@@ -3,6 +3,22 @@ title: "Changelog"
 description: "What changed, and when."
 ---
 
+<Update label="v1.16" description="Photographic cards got fourteen times smaller">
+  **A card with a photograph on it now comes back as JPEG rather than PNG.** The
+  same card went from 896 KB to 64 KB &mdash; and 896 KB was past the size our own
+  checker flags as a preview image too heavy, so we were shipping cards
+  MetaManager would have complained about.
+
+  Cards without a photograph are still PNG, which is smaller for flat colour.
+  The format follows the content.
+
+  **The image limit is now 4 MB, up from 1 MB.** One megabyte was a guess and it
+  was wrong: an ordinary unoptimised stock photo is two to three, so the first
+  real image anybody tried was quietly refused. When an image still cannot be
+  used, the reason is now shown &mdash; too large, not an image, unreachable
+  &mdash; instead of the card simply appearing without it.
+</Update>
+
 <Update label="v1.15" description="Your own image on the card">
   **A fifth layout, `banner`, draws a picture behind your words.** Point `&i=` at
   the image you want:
