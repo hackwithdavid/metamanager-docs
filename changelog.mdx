@@ -3,6 +3,20 @@ title: "Changelog"
 description: "What changed, and when."
 ---
 
+<Update label="v1.17" description="Signed cards no longer need a registered brand">
+  **Colours and a picture can travel in the signed payload.** Send `bg`, `fg`,
+  `ac` and `i` and the card draws in those colours with that image, having
+  registered nothing.
+
+  Registering a brand still earns its place for one thing a URL cannot do: carry
+  a **logo**. A mark is image data rather than an address, so it is resolved once
+  when you save it and stored &mdash; drawing must not need the network. Brands
+  are also handy if you would rather not repeat the same fields on every page.
+
+  Where both exist, the payload wins: it is the most specific and the most
+  current.
+</Update>
+
 <Update label="v1.16" description="Photographic cards got fourteen times smaller">
   **A card with a photograph on it now comes back as JPEG rather than PNG.** The
   same card went from 896 KB to 64 KB &mdash; and 896 KB was past the size our own

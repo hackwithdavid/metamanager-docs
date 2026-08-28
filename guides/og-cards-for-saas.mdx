@@ -48,9 +48,11 @@ const payload = {
   u: 'https://customer.example/post/hello',  // the page (required)
   t: 'Hello, world',                          // title
   d: 'The first post on a new blog.',         // description
-  tn: 'customer-42',                          // which brand to use (optional)
+  tn: 'customer-42',                          // a registered brand (optional)
   tpl: 'split',                               // layout (optional)
   l: 'de',                                    // language (optional)
+  i: 'https://cdn.example/hero.jpg',          // a picture (optional)
+  bg: '#101a2b', fg: '#eef2ff', ac: '#ff5c8a', // colours (optional)
 };
 
 const b64 = (bytes) => btoa(String.fromCharCode(...new Uint8Array(bytes)))
@@ -69,9 +71,36 @@ const card = `https://og.metamanager.dev/s?k=${keyId}&p=${body}&s=${sig}`;
 Then put `card` in the page's `og:image`. Signing is a few lines in any language
 with an HMAC library — there is nothing to install.
 
+## Everything in the payload
+
+Most of a card can be described by the payload itself, with nothing registered
+here first:
+
+| Key | What it is |
+| :--- | :--- |
+| `u` | the page (required) |
+| `t` / `d` | title and description |
+| `tpl` | layout |
+| `l` | language to read the page in |
+| `i` | a picture for the card |
+| `bg` / `fg` / `ac` | background, text and accent colours |
+
+If your own database already holds a customer's colours, send them. There is
+nothing to keep in step and nothing to register.
+
 ## Giving each customer their own brand
 
-Register a brand once per customer, then name it with `tn` in the payload:
+A brand is a convenience, not a requirement &mdash; and there is exactly one
+thing it can do that a payload cannot: **carry a logo**. A mark is image data,
+not an address, so it is resolved once when you save it and stored. Putting it
+in a URL is not an option, and fetching it while drawing would put the network
+back on the path that must not need it.
+
+So: send colours in the payload if that suits you, and register a brand when a
+customer needs their logo on the card, or when you would rather not repeat the
+same four fields on every page.
+
+Register one per customer, then name it with `tn` in the payload:
 
 ```bash
 curl -X PUT https://metamanager.dev/api/og/tenants/customer-42 \
