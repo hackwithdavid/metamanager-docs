@@ -25,6 +25,30 @@ generate at build time.
   our mark — a real card uses yours and carries neither.
 </Tip>
 
+## Layouts
+
+Four are available. Choose a default under **Social cards**, and override it for
+any individual page with `&tpl=`:
+
+```html
+<meta property="og:image"
+      content="https://og.metamanager.dev/card?k=pk_...&u={{ current_url }}&tpl=minimal">
+```
+
+| Name | What it draws |
+| :--- | :--- |
+| `classic` | Title and description, your mark above. The default. |
+| `minimal` | The title alone, set large. No description. |
+| `split` | An accent panel beside the text. |
+| `quote` | The description as a pull quote, credited to the title. |
+
+`split` fills a large panel with your accent colour, so its text colour is
+chosen automatically from that colour's brightness — a colour picked for a thin
+rule does not always work behind text, and this is the one place that matters.
+
+A name we do not recognise falls back to your saved default, so a typo in one
+page's tag costs you that page's layout and nothing else.
+
 ## Languages and scripts
 
 Cards draw in the page's own script. Japanese, Chinese (Simplified and

@@ -3,6 +3,26 @@ title: "Changelog"
 description: "What changed, and when."
 ---
 
+<Update label="v1.11" description="Four card layouts">
+  **Cards can now use one of four layouts**, chosen under **Social cards** in
+  your account:
+
+  - **Classic** — title and description, with your mark above. The default, and
+    unchanged: existing cards draw exactly as they did before.
+  - **Minimal** — the title alone, set large.
+  - **Split** — an accent panel beside the text. The panel's text colour is
+    computed from your accent so it stays readable whatever you pick.
+  - **Quote** — sets the description as a pull quote. Good for writing, less so
+    for a pricing page.
+
+  Pick a default in the dashboard, or override it per page by adding
+  `&tpl=minimal` to the card URL — so one template can serve your blog and
+  another your product pages, from the same key.
+
+  An unrecognised name falls back to your saved default rather than failing.
+  Nothing on this service returns an error where it could return a card.
+</Update>
+
 <Update label="v1.10" description="Social cards in your own script">
   **Cards now draw in Japanese, Chinese, Korean, Cyrillic and Greek.** Until now
   the renderer shipped a Latin-only face, so a Japanese or Russian page got a
