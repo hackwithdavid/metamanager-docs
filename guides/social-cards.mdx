@@ -1,0 +1,75 @@
+---
+title: "Social cards"
+description: "Generate a link preview image for every page, drawn from that page's own title, in your colours."
+---
+
+`missing_og_image` is one of the most common things MetaManager reports. Until
+now the answer was a `<meta>` tag pointing at an image you still had to design
+and host. This draws it instead.
+
+Add one line to your template and every page gets a card built from that page's
+real title and description:
+
+```html
+<meta property="og:image"
+      content="https://og.metamanager.dev/card?k=pk_...&u={{ current_url }}">
+```
+
+Replace `{{ current_url }}` with whatever your framework calls the current page
+URL. That is the whole integration — no backend code, no signing, nothing to
+generate at build time.
+
+## Setting it up
+
+In your account, under **Social cards**:
+
+1. **Verify your site.** Add your domain and put the `<meta>` tag we show you on
+   its home page. We check it with the same checker you already use.
+2. **Choose your colours.** Background, text and accent. *Use my favicon* pulls
+   your site's icon in as the card's mark.
+3. **Copy the snippet** into your template.
+
+<Note>
+  The key in the URL is public — it sits in your page source where anyone can
+  read it. That is why step 1 exists: a card is only ever drawn for a domain you
+  have verified, so a copied key is useless to whoever copies it.
+</Note>
+
+## What the card shows
+
+Your site name and icon, the page's title, its description, and an accent rule
+in your colour. Everything comes from the page itself, so the card cannot drift
+out of step with what it is previewing.
+
+If a page has no title — the case that probably brought you here — the card
+falls back to the page's URL rather than drawing nothing.
+
+## What it costs
+
+| | Free | Pro |
+| :--- | ---: | ---: |
+| Cards drawn per month | 100 | 5,000 |
+| MetaManager mark on the card | Yes | — |
+
+**Cards drawn, not link previews served.** A card is drawn once and then cached,
+so a page shared a thousand times costs one card. Redrawing happens about daily,
+so an edited title appears within a day without you doing anything.
+
+Going over the allowance does not break your previews. Cards keep being drawn —
+they just carry the mark until the next month starts.
+
+## Changing your colours later
+
+Save new colours and the next redraw picks them up, everywhere, without editing
+a single page. The same is true of upgrading: moving to Pro removes the mark
+from the next redraw of every card you have.
+
+## Rolling the key
+
+**Rolling the key breaks every page still using the old one.** Cards already
+drawn keep serving until they expire, but nothing new is drawn — so update your
+template in the same sitting.
+
+Roll it if the key ends up somewhere it should not be. Bear in mind it is
+designed to be public, and on its own it cannot draw cards for a domain you have
+not verified.

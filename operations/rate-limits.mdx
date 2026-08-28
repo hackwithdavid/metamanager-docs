@@ -5,11 +5,11 @@ description: "How many checks an hour, how they are counted, and what the header
 
 ## The limits
 
-| Plan | Checks per hour | Saved URLs | Projects | Audit pages | Audits per month | Monitors | Sharing | PDF | API keys |
-| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Anonymous | 50 | — | — | — | — | — | — | — | — |
-| Free | 100 | 3 | 1 | 25 | 1 | — | summary | — | 1 |
-| Pro | 1,000 | unlimited | unlimited | 500 | 50 | 3 | full | yes | 10 |
+| Plan | Checks per hour | Saved URLs | Projects | Audit pages | Audits per month | Monitors | Sharing | PDF | API keys | Cards/month |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Anonymous | 50 | — | — | — | — | — | — | — | — | — |
+| Free | 100 | 3 | 1 | 25 | 1 | — | summary | — | 1 | 100 |
+| Pro | 1,000 | unlimited | unlimited | 500 | 50 | 3 | full | yes | 10 | 5,000 |
 
 [Site audits](/guides/site-audits) are metered separately from the hourly check
 quota, and [scheduled runs](/guides/monitoring) are not metered at all — the
@@ -82,3 +82,12 @@ bucket is the account, not the key.
 
 A request with a key that does not resolve is rejected outright rather than
 falling back to an anonymous, IP-based limit.
+
+## Social cards are counted when drawn
+
+A card is drawn once and cached, so a page shared a thousand times costs one
+card against your allowance. Cards redraw about daily so an edited title appears
+without you doing anything.
+
+Going over does not break previews — cards keep being drawn, carrying the
+MetaManager mark until the month rolls over.

@@ -3,6 +3,30 @@ title: "Changelog"
 description: "What changed, and when."
 ---
 
+<Update label="v1.9" description="Generated social cards">
+  **One line in your template gives every page a link preview image.** The card
+  is drawn from that page's own title and description, in colours you choose,
+  with your site's icon as the mark.
+
+  ```html
+  <meta property="og:image"
+        content="https://og.metamanager.dev/card?k=pk_...&u={{ current_url }}">
+  ```
+
+  - No backend code and nothing to sign. The key in the URL is public by design;
+    a card is only drawn for a **domain you have verified**, so a copied key is
+    useless to whoever copies it.
+  - Content comes from the page itself, through the same checker you already
+    use — so the card cannot drift out of step with what it previews.
+  - A page with no title still gets a card, drawn from its URL. This runs inside
+    your page, and an error there is a broken preview across every platform.
+
+  Free draws **100 cards a month** and marks them; Pro draws **5,000** and does
+  not. Cards are counted when drawn, not when a link is shared — a page shared a
+  thousand times costs one card, redrawn about daily so an edited title appears
+  on its own.
+</Update>
+
 <Update label="v1.8" description="A check for heavy social images">
   **New issue code: `og_image_too_heavy`.** Every service that unfurls your link
   refetches your `og:image`, and a 1200 by 630 preview usually compresses to well
