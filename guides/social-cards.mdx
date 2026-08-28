@@ -55,6 +55,34 @@ Cards draw in the page's own script. Japanese, Chinese (Simplified and
 Traditional), Korean, Cyrillic, Greek and the extended Latin alphabets all
 render from the page's real title, with no configuration.
 
+### Adjusting a layout
+
+Four settings change how any of the four layouts draws, in your account or per
+page:
+
+| Parameter | Values | Default |
+| :--- | :--- | :--- |
+| `ts` | `s`, `m`, `l` — title size | `m` |
+| `align` | `left`, `center` | `left` |
+| `desc` | `0` to hide the description | shown |
+| `mark` | `0` to hide your mark | shown |
+
+```html
+<meta property="og:image"
+      content="https://og.metamanager.dev/card?k=pk_...&u={{ current_url }}&ts=l&align=center">
+```
+
+Settings you choose in the dashboard apply to every card; a parameter on one
+card overrides just that one, leaving your other choices alone. An unrecognised
+value falls back to the default rather than failing &mdash; a typo costs you a
+setting, never the card.
+
+<Note>
+  `minimal` never draws a description, so `desc` does nothing there. The
+  dashboard greys the control out rather than letting you set something that
+  will not happen.
+</Note>
+
 ### Reading a page in a particular language
 
 If your site serves different languages from one URL, add `&l=` so we read the
