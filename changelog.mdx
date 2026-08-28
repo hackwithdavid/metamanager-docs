@@ -3,6 +3,24 @@ title: "Changelog"
 description: "What changed, and when."
 ---
 
+<Update label="v1.15" description="Your own image on the card">
+  **A fifth layout, `banner`, draws a picture behind your words.** Point `&i=` at
+  the image you want:
+
+  ```html
+  <meta property="og:image"
+        content="https://og.metamanager.dev/card?k=pk_...&u={{ current_url }}&tpl=banner&i={{ hero_image_url }}">
+  ```
+
+  Explicit on purpose. We do not scan your page for a likely-looking image,
+  because the first one on a page is a logo or a tracking pixel about as often as
+  it is the picture you meant, and guessing wrong puts a broken card on a live
+  page.
+
+  Fetched once and cached with the card, so it is one request per page per day
+  rather than one per share. If it cannot be fetched, the card draws without it.
+</Update>
+
 <Update label="v1.14" description="Adjust a layout without leaving the built-ins">
   **Four settings on every card layout:** title size, alignment, whether the
   description draws, and whether your mark appears. Set them once in your

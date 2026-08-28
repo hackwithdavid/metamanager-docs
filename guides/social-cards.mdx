@@ -41,6 +41,7 @@ any individual page with `&tpl=`:
 | `minimal` | The title alone, set large. No description. |
 | `split` | An accent panel beside the text. |
 | `quote` | The description as a pull quote, credited to the title. |
+| `banner` | Your page's own image behind the words. |
 
 `split` fills a large panel with your accent colour, so its text colour is
 chosen automatically from that colour's brightness — a colour picked for a thin
@@ -54,6 +55,30 @@ page's tag costs you that page's layout and nothing else.
 Cards draw in the page's own script. Japanese, Chinese (Simplified and
 Traditional), Korean, Cyrillic, Greek and the extended Latin alphabets all
 render from the page's real title, with no configuration.
+
+### Putting your own image on the card
+
+The `banner` layout draws a picture behind the text. Name it explicitly:
+
+```html
+<meta property="og:image"
+      content="https://og.metamanager.dev/card?k=pk_...&u={{ current_url }}&tpl=banner&i={{ hero_image_url }}">
+```
+
+We fetch it once when the card is drawn and cache it with the card, so it costs
+one request per page per day rather than one per share. PNG, JPEG, WebP and GIF,
+up to a megabyte.
+
+**You have to name it.** We will not go looking for a picture in your markup: the
+first image on a page is a logo, an avatar or a tracking pixel about as often as
+it is the one you meant, and a card is not the place to find that out.
+
+<Note>
+  A card whose image cannot be fetched &mdash; wrong address, too large, too slow,
+  not an image &mdash; draws without it rather than failing. The text is legible
+  either way: `banner` puts a gradient between the picture and the words, because
+  an image chosen for how it looks is rarely one chosen as a background.
+</Note>
 
 ### Adjusting a layout
 
