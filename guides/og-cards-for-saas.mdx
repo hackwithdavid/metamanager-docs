@@ -1,0 +1,97 @@
+---
+title: "Cards for your customers"
+description: "Draw social cards for pages on your customers' own domains, without verifying any of them."
+---
+
+If you run a platform — a newsletter tool, a site builder, a help-desk product —
+your customers' pages live on their own domains. The [publishable key](/docs/guides/social-cards)
+binds cards to domains **you** have verified, which does not scale past a
+handful and cannot work at all when a customer points a new domain at you on a
+Tuesday afternoon.
+
+This is the other way in. You sign each card, and the signature authorises it.
+
+<Note>
+  Signed cards are part of the **Business** plan.
+</Note>
+
+## Why signing, and what it buys
+
+You can run code on a server. That is the thing your customers cannot do, and it
+turns out to be a better anchor than domain verification:
+
+- **No domain verification.** Your customers' domains never touch our records.
+- **No page fetch.** You already hold the title and description, so we never go
+  and read the page. That removes the slowest part of drawing a card, and it
+  means a card works for a page behind a login, or one that is not published yet.
+- **Permanent caching.** The payload *is* the content, so a changed title is a
+  changed URL. Cards are cached hard and never go stale.
+
+## Getting a key
+
+Under **Social cards** in your account you get two values:
+
+| | |
+| :--- | :--- |
+| `ogk_…` | The **key id**. Public — it goes in the card URL. |
+| `ogs_…` | The **secret**. Shown once. Keep it on your server. |
+
+If you lose the secret, rotate it. The previous secret keeps working, so cards
+already in your templates do not break the moment you rotate.
+
+## Signing a card
+
+Build a JSON payload, base64url it, and sign that string with HMAC-SHA256.
+
+```js
+const payload = {
+  u: 'https://customer.example/post/hello',  // the page (required)
+  t: 'Hello, world',                          // title
+  d: 'The first post on a new blog.',         // description
+  tn: 'customer-42',                          // which brand to use (optional)
+  tpl: 'split',                               // layout (optional)
+  l: 'de',                                    // language (optional)
+};
+
+const b64 = (bytes) => btoa(String.fromCharCode(...new Uint8Array(bytes)))
+  .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+const body = b64(new TextEncoder().encode(JSON.stringify(payload)));
+const key = await crypto.subtle.importKey(
+  'raw', new TextEncoder().encode(process.env.MM_SIGNING_SECRET),
+  { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
+);
+const sig = b64(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(body)));
+
+const card = `https://og.metamanager.dev/s?k=${keyId}&p=${body}&s=${sig}`;
+```
+
+Then put `card` in the page's `og:image`. Signing is a few lines in any language
+with an HMAC library — there is nothing to install.
+
+## Giving each customer their own brand
+
+Register a brand once per customer, then name it with `tn` in the payload:
+
+```bash
+curl -X PUT https://metamanager.dev/api/og/tenants/customer-42 \
+  -H 'content-type: application/json' \
+  -d '{"background":"#0b0c0d","text":"#f4f5f6","accent":"#ff0055","template":"split"}'
+```
+
+Colours and the mark are resolved **when you save them**, never when a card is
+drawn. That is deliberate: a renderer that needs the network to draw fails in
+the least debuggable way possible, and it is sitting inside your customers'
+pages.
+
+`GET /api/og/tenants` lists them, `DELETE /api/og/tenants/:ref` removes one. A
+reference belonging to another account answers exactly like one that never
+existed, so a key cannot be used to discover somebody else's customer list.
+
+## What it refuses
+
+Everything that fails answers `404` — an unknown key id, a bad signature, a
+payload edited after signing, an account no longer on the plan. They are
+deliberately indistinguishable, so a probe learns only that no card came back.
+
+Cards are counted when drawn, against your allowance rather than your customers'.

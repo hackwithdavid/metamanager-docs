@@ -3,6 +3,22 @@ title: "Changelog"
 description: "What changed, and when."
 ---
 
+<Update label="v1.13" description="Cards for your customers' domains">
+  **A new Business plan, for platforms that draw cards on behalf of their own
+  customers.** Instead of verifying every customer domain — which does not scale
+  and cannot cope with a domain added this afternoon — you sign each card on your
+  server, and the signature authorises it.
+
+  Because the payload carries the title, we never fetch the page: cards draw for
+  pages behind a login or not yet published, and they cache permanently, since a
+  changed title is a changed signature is a changed URL.
+
+  Each of your customers can have their own colours, mark and layout, registered
+  once and referenced by id. Otherwise all of them would wear yours.
+
+  [Cards for your customers →](/docs/guides/og-cards-for-saas)
+</Update>
+
 <Update label="v1.12" description="Choose the language a page is read in">
   **Add `&l=` to a card URL to say which language to read the page in.**
 
