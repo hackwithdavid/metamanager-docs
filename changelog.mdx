@@ -3,6 +3,29 @@ title: "Changelog"
 description: "What changed, and when."
 ---
 
+<Update label="v1.12" description="Choose the language a page is read in">
+  **Add `&l=` to a card URL to say which language to read the page in.**
+
+  ```html
+  <meta property="og:image"
+        content="https://og.metamanager.dev/card?k=pk_...&u={{ current_url }}&l=de">
+  ```
+
+  Without it, a site that varies by locale serves whichever language our edge
+  happens to prefer — which is how a card for a US pricing page came back in
+  Dutch. We deliberately send no language by default rather than assuming
+  English, because a default would quietly change what we report for every site
+  that honours the header.
+
+  This chooses the language we **read** in, not the one we draw in. Which
+  typeface a card uses is decided from the text we actually get back, so a page
+  tagged `en` that is full of Japanese still renders correctly.
+
+  Related: cards now also read a page's own `lang` attribute to tell Traditional
+  and Simplified Chinese apart. Most Chinese characters are shared between the
+  two, so the page is the only thing that can say which forms to draw.
+</Update>
+
 <Update label="v1.11" description="Four card layouts">
   **Cards can now use one of four layouts**, chosen under **Social cards** in
   your account:

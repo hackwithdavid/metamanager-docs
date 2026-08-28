@@ -55,6 +55,20 @@ Cards draw in the page's own script. Japanese, Chinese (Simplified and
 Traditional), Korean, Cyrillic, Greek and the extended Latin alphabets all
 render from the page's real title, with no configuration.
 
+### Reading a page in a particular language
+
+If your site serves different languages from one URL, add `&l=` so we read the
+one you mean:
+
+```html
+<meta property="og:image"
+      content="https://og.metamanager.dev/card?k=pk_...&u={{ current_url }}&l=de">
+```
+
+We send no language unless you ask, so by default a multilingual site is read in
+whichever language its own edge prefers. This controls the language we *read* —
+the typeface is always chosen from the text we get back.
+
 <Warning>
   Arabic, Hebrew and the Indic scripts are **not** drawn. Those pages get a plain
   card showing the site's address instead of the title.
