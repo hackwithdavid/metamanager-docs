@@ -105,8 +105,24 @@ Register one per customer, then name it with `tn` in the payload:
 ```bash
 curl -X PUT https://metamanager.dev/api/og/tenants/customer-42 \
   -H 'content-type: application/json' \
-  -d '{"background":"#0b0c0d","text":"#f4f5f6","accent":"#ff0055","template":"split"}'
+  -d '{
+        "background": "#0b0c0d",
+        "text": "#f4f5f6",
+        "accent": "#ff0055",
+        "template": "split",
+        "mark_source": "https://customer.example/logo.png"
+      }'
 ```
+
+`mark_source` is fetched once, when you save it, and stored as the mark itself.
+Up to 256 KB &mdash; far below what a card image may be, because this is drawn
+small and lives against every customer you register. A logo that cannot be
+fetched fails the save rather than being stored as an address that never becomes
+a picture.
+
+You can also add and edit brands under **Signed cards** in your account, which
+is the easier path for a handful. The reference cannot be changed once set:
+renaming it would make a second brand and orphan every card naming the first.
 
 Colours and the mark are resolved **when you save them**, never when a card is
 drawn. That is deliberate: a renderer that needs the network to draw fails in

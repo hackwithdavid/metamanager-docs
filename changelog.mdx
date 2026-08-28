@@ -3,6 +3,16 @@ title: "Changelog"
 description: "What changed, and when."
 ---
 
+<Update label="v1.18" description="Edit a customer brand from the dashboard">
+  **Brands can be added and edited under Signed cards**, including a logo. Set
+  `mark_source` to an image address and we fetch it once and keep it, so drawing
+  a card never waits on your customer's server.
+
+  Also fixed: a customer already on a paid plan saw the pricing page mark their
+  card as theirs while the button still invited them to buy it. It now opens the
+  billing portal, on every paid plan rather than only Pro.
+</Update>
+
 <Update label="v1.17" description="Signed cards no longer need a registered brand">
   **Colours and a picture can travel in the signed payload.** Send `bg`, `fg`,
   `ac` and `i` and the card draws in those colours with that image, having
