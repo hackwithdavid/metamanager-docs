@@ -17,8 +17,30 @@ https://mcp.metamanager.dev/mcp
 
 ## Connecting
 
-Create an API key at [your account](https://metamanager.dev/account), then point
-your client at the server with the key as a bearer token.
+Most clients can connect without a key at all. Point them at the URL and they
+will open MetaManager in your browser, ask you to approve the connection, and
+handle the credential themselves.
+
+```bash
+claude mcp add --transport http metamanager https://mcp.metamanager.dev/mcp -s user
+```
+
+You will be asked to approve two things: reading your reports and audits, and —
+if the client asks for it — starting audits and saving URLs, which spend your
+monthly allowance. Approved connections are listed at
+[your keys](https://metamanager.dev/keys), where revoking one stops it
+immediately.
+
+<Note>
+  Nothing is shared with the agent beyond your own account. Connections are
+  per-account and can be revoked at any time without touching your API keys.
+</Note>
+
+### With an API key instead
+
+Clients that do not speak OAuth, and scripts of your own, keep working exactly
+as before. Create an API key at [your account](https://metamanager.dev/account),
+then point your client at the server with the key as a bearer token.
 
 ```json
 {
