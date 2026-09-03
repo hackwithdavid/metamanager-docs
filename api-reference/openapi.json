@@ -945,7 +945,7 @@
       "apiKey": {
         "type": "http",
         "scheme": "bearer",
-        "description": "A MetaManager API key, created at https://metamanager.dev/account. Read-only unless issued with write access."
+        "description": "A MetaManager API key, created at https://metamanager.dev/keys. Read-only unless issued with write access."
       }
     }
   }

@@ -17,13 +17,27 @@ https://mcp.metamanager.dev/mcp
 
 ## Connecting
 
-Most clients can connect without a key at all. Point them at the URL and they
-will open MetaManager in your browser, ask you to approve the connection, and
-handle the credential themselves.
+Most clients can connect without a key at all: they open MetaManager in your
+browser, you approve, and the client stores and refreshes the credential itself.
 
-```bash
-claude mcp add --transport http metamanager https://mcp.metamanager.dev/mcp -s user
-```
+Adding the server and signing in are two steps.
+
+<Steps>
+  <Step title="Add the server">
+    ```bash
+    claude mcp add --transport http metamanager https://mcp.metamanager.dev/mcp -s user
+    ```
+  </Step>
+
+  <Step title="Sign in">
+    Run `/mcp` inside Claude Code and pick MetaManager, then approve in the
+    browser window that opens. From a shell instead:
+
+    ```bash
+    claude mcp login metamanager
+    ```
+  </Step>
+</Steps>
 
 The approval screen lists one permission per checkbox, and you can hand over
 less than the client asked for:
@@ -48,8 +62,8 @@ immediately.
 ### With an API key instead
 
 Clients that do not speak OAuth, and scripts of your own, keep working exactly
-as before. Create an API key at [your account](https://metamanager.dev/account),
-then point your client at the server with the key as a bearer token.
+as before. Create an API key at [your keys](https://metamanager.dev/keys), then
+point your client at the server with the key as a bearer token.
 
 ```json
 {
@@ -74,15 +88,36 @@ claude mcp add --transport http metamanager https://mcp.metamanager.dev/mcp \
 ```
 
 <Warning>
-  Do not use `-s project`. That scope writes `.mcp.json`, which is meant to be
-  committed and shared — your key would go into version control with it. `-s user`
-  keeps the key in your own configuration and makes MetaManager available in
-  every project.
+  With a key, do not use `-s project`. That scope writes `.mcp.json`, which is
+  meant to be committed and shared — your key would go into version control with
+  it. `-s user` keeps the key in your own configuration and makes MetaManager
+  available in every project.
+
+  This is one more reason to prefer OAuth where a client supports it: no
+  credential is written to the config at all, so there is nothing in the file to
+  leak.
 </Warning>
 
 The bare host without `/mcp` also works, so an existing configuration keeps
 running. Other paths do not: a typo returns a 404 naming the right address
 rather than appearing to succeed.
+
+## Fixing a missing image
+
+`missing_og_image` is the most common finding, and the usual fix is an image
+somebody has to design and host. MetaManager draws it instead, so an agent can
+close that loop by itself:
+
+```text
+check_url         →  missing_og_image
+get_card_snippet  →  <meta property="og:image" content="https://og.metamanager.dev/card?k=…">
+                     paste it; each page's card is drawn from its own title
+check_url         →  the issue is gone
+```
+
+The domain has to be verified on your account first. If it is not,
+`get_card_snippet` says so and where to do it, rather than handing back a line
+that would not draw.
 
 ## Teach your agent the workflow
 
@@ -116,6 +151,11 @@ has to be told what to do with them.
 | `start_audit` | Crawl a whole site | Pro, **write** |
 | `list_monitors` | Sites watched on a schedule | Pro |
 | `list_saved_urls` / `save_url` | Read and add saved URLs | Pro, `save_url` needs **write** |
+| `get_card_snippet` | The `og:image` line to paste, drawing a real card for a verified domain | Any plan |
+| `list_card_templates` | The layouts this account can use, and which are published | Any plan |
+| `describe_card_schema` | The schema a card layout is written in | Any plan |
+| `create_card_template` | Create or replace one of your layouts, as a draft | **write** |
+| `publish_card_template` | Publish a layout — **changes what live cards draw** | **write** |
 
 ## What it costs
 

@@ -61,7 +61,7 @@ curl https://metamanager.dev/entitlements
 
 ## Programmatic API access
 
-Create an API key at [your account](https://metamanager.dev/account) and send it
+Create an API key at [your keys](https://metamanager.dev/keys) and send it
 as a bearer token:
 
 ```bash
@@ -118,4 +118,12 @@ was last used.
 ## Connecting an AI agent
 
 If you want an agent to use MetaManager rather than writing code against it, use
-the [MCP server](/guides/mcp) — same keys, no code.
+the [MCP server](/guides/mcp) — no code either way.
+
+A client that speaks the MCP authorization spec needs **no key at all**: it sends
+you to MetaManager to approve, you tick which permissions it gets, and it stores
+and refreshes the credential itself. Clients that do not can use an API key as a
+bearer token, exactly as above.
+
+The two are independent. Approved connections are listed beside your keys, and
+revoking one leaves the other working.
