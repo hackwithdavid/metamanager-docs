@@ -17,27 +17,290 @@ https://mcp.metamanager.dev/mcp
 
 ## Connecting
 
-Most clients can connect without a key at all: they open MetaManager in your
-browser, you approve, and the client stores and refreshes the credential itself.
+Every client needs the same two facts: the address above, and which door you are
+coming through.
 
-Adding the server and signing in are two steps.
+**OAuth** — the client opens MetaManager in your browser, you tick the
+permissions it may have, and the client stores and refreshes the credential
+itself. Nothing is written into a config file.
 
-<Steps>
-  <Step title="Add the server">
+**An API key** — a bearer token you paste, for clients that do not speak OAuth
+yet and for scripts of your own.
+
+Prefer OAuth where the client supports it. The credential never lands in a file,
+it carries only the permissions you ticked, and revoking it is one click.
+
+<Tabs>
+  <Tab title="Claude Code">
+    Add the server:
+
     ```bash
     claude mcp add --transport http metamanager https://mcp.metamanager.dev/mcp -s user
     ```
-  </Step>
 
-  <Step title="Sign in">
-    Run `/mcp` inside Claude Code and pick MetaManager, then approve in the
+    Then run `/mcp` inside Claude Code, pick MetaManager, and approve in the
     browser window that opens. From a shell instead:
 
     ```bash
     claude mcp login metamanager
     ```
-  </Step>
-</Steps>
+
+    **With an API key**, one command does both steps:
+
+    ```bash
+    claude mcp add --transport http metamanager https://mcp.metamanager.dev/mcp \
+      --header "Authorization: Bearer mm_live_..." \
+      -s user
+    ```
+
+    <Warning>
+      With a key, do not use `-s project`. That scope writes `.mcp.json`, which
+      is meant to be committed and shared — your key would go into version
+      control with it. `-s user` keeps the key in your own configuration and
+      makes MetaManager available in every project.
+    </Warning>
+  </Tab>
+
+  <Tab title="Codex">
+    Add the server to `~/.codex/config.toml`:
+
+    ```toml
+    [mcp_servers.metamanager]
+    url = "https://mcp.metamanager.dev/mcp"
+    ```
+
+    Then sign in:
+
+    ```bash
+    codex mcp login metamanager
+    ```
+
+    Codex treats `auth = "oauth"` as the default for a server given a `url`, so
+    there is nothing else to set.
+
+    **With an API key**, Codex holds the *name* of an environment variable
+    rather than the key itself:
+
+    ```toml
+    [mcp_servers.metamanager]
+    url = "https://mcp.metamanager.dev/mcp"
+    bearer_token_env_var = "METAMANAGER_API_KEY"
+    ```
+
+    ```bash
+    export METAMANAGER_API_KEY=mm_live_...
+    ```
+
+    <Note>
+      `bearer_token_env_var` takes a variable name, not a token. Pasting the key
+      there sends the literal string `mm_live_...` as your bearer token and every
+      call comes back unauthenticated.
+    </Note>
+  </Tab>
+
+  <Tab title="Cursor">
+    Add the server to `~/.cursor/mcp.json` for every project, or
+    `.cursor/mcp.json` for one:
+
+    ```json
+    {
+      "mcpServers": {
+        "metamanager": {
+          "url": "https://mcp.metamanager.dev/mcp"
+        }
+      }
+    }
+    ```
+
+    With no `headers`, Cursor discovers that the server wants OAuth and prompts
+    you to sign in.
+
+    **With an API key**, reference an environment variable rather than pasting
+    the key:
+
+    ```json
+    {
+      "mcpServers": {
+        "metamanager": {
+          "url": "https://mcp.metamanager.dev/mcp",
+          "headers": {
+            "Authorization": "Bearer ${env:METAMANAGER_API_KEY}"
+          }
+        }
+      }
+    }
+    ```
+
+    <Warning>
+      `.cursor/mcp.json` sits in the project and is usually committed. Use the
+      `${env:VAR}` form there, or put the key in `~/.cursor/mcp.json` instead.
+    </Warning>
+  </Tab>
+
+  <Tab title="VS Code">
+    Add the server to `.vscode/mcp.json` for one workspace, or run
+    **MCP: Open User Configuration** from the command palette for all of them:
+
+    ```json
+    {
+      "servers": {
+        "metamanager": {
+          "type": "http",
+          "url": "https://mcp.metamanager.dev/mcp"
+        }
+      }
+    }
+    ```
+
+    VS Code prompts you to authenticate the first time a tool is used.
+
+    <Note>
+      The top-level key here is `servers`, not `mcpServers`, and `type` is
+      required. A file copied from another client's docs will be ignored
+      silently.
+    </Note>
+  </Tab>
+
+  <Tab title="Zed">
+    **Settings → AI → MCP Servers → Add Server → Add Remote Server**, or in
+    `settings.json`:
+
+    ```json
+    {
+      "context_servers": {
+        "metamanager": {
+          "url": "https://mcp.metamanager.dev/mcp"
+        }
+      }
+    }
+    ```
+
+    When a remote server has no `Authorization` header configured, Zed runs the
+    OAuth flow and prompts you to sign in — so leaving `headers` out is how you
+    ask for OAuth.
+
+    **With an API key**, add the header:
+
+    ```json
+    {
+      "context_servers": {
+        "metamanager": {
+          "url": "https://mcp.metamanager.dev/mcp",
+          "headers": { "Authorization": "Bearer mm_live_..." }
+        }
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="Gemini CLI">
+    Add the server to `~/.gemini/settings.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "metamanager": {
+          "httpUrl": "https://mcp.metamanager.dev/mcp"
+        }
+      }
+    }
+    ```
+
+    Then authenticate:
+
+    ```text
+    /mcp auth metamanager
+    ```
+
+    **With an API key**, add a header instead:
+
+    ```json
+    {
+      "mcpServers": {
+        "metamanager": {
+          "httpUrl": "https://mcp.metamanager.dev/mcp",
+          "headers": { "Authorization": "Bearer mm_live_..." }
+        }
+      }
+    }
+    ```
+
+    <Note>
+      Gemini CLI uses `httpUrl` for streamable HTTP. Plain `url` selects SSE, a
+      different transport.
+    </Note>
+  </Tab>
+
+  <Tab title="Windsurf">
+    Add the server to `~/.codeium/windsurf/mcp_config.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "metamanager": {
+          "serverUrl": "https://mcp.metamanager.dev/mcp"
+        }
+      }
+    }
+    ```
+
+    Reload the server list in Windsurf's MCP settings, then complete the OAuth
+    consent to finish connecting.
+
+    **With an API key**, add a header:
+
+    ```json
+    {
+      "mcpServers": {
+        "metamanager": {
+          "serverUrl": "https://mcp.metamanager.dev/mcp",
+          "headers": { "Authorization": "Bearer ${env:METAMANAGER_API_KEY}" }
+        }
+      }
+    }
+    ```
+
+    <Note>
+      Windsurf calls the field `serverUrl`, not `url`.
+    </Note>
+  </Tab>
+
+  <Tab title="Claude Desktop">
+    No file to edit. Open **Settings → Connectors → Add custom connector**,
+    give it a name, and paste:
+
+    ```text
+    https://mcp.metamanager.dev/mcp
+    ```
+
+    Claude runs the OAuth flow and shows you the approval screen. The same steps
+    work on claude.ai and in the mobile apps, since a custom connector belongs to
+    your Claude account rather than to one device.
+  </Tab>
+</Tabs>
+
+### A client that is not listed
+
+Every client needs the URL and, for a key, an `Authorization: Bearer` header.
+What differs is only where the file lives and what the fields are called — which
+is where most failed setups come from, because a config copied from another
+client's documentation is usually ignored in silence rather than rejected.
+
+| Client | File | Top-level key | URL field |
+| :--- | :--- | :--- | :--- |
+| Claude Code | `claude mcp add` | — | `--transport http` |
+| Codex | `~/.codex/config.toml` | `[mcp_servers.NAME]` | `url` |
+| Cursor | `~/.cursor/mcp.json` | `mcpServers` | `url` |
+| VS Code | `.vscode/mcp.json` | `servers` | `url` (with `"type": "http"`) |
+| Zed | `settings.json` | `context_servers` | `url` |
+| Gemini CLI | `~/.gemini/settings.json` | `mcpServers` | `httpUrl` |
+| Windsurf | `~/.codeium/windsurf/mcp_config.json` | `mcpServers` | `serverUrl` |
+
+The bare host without `/mcp` also works, so an existing configuration keeps
+running. Other paths do not: a typo returns a 404 naming the right address
+rather than appearing to succeed.
+
+## What you are approving
 
 The approval screen lists one permission per checkbox, and you can hand over
 less than the client asked for:
@@ -58,49 +321,6 @@ immediately.
   Nothing is shared with the agent beyond your own account. Connections are
   per-account and can be revoked at any time without touching your API keys.
 </Note>
-
-### With an API key instead
-
-Clients that do not speak OAuth, and scripts of your own, keep working exactly
-as before. Create an API key at [your keys](https://metamanager.dev/keys), then
-point your client at the server with the key as a bearer token.
-
-```json
-{
-  "mcpServers": {
-    "metamanager": {
-      "url": "https://mcp.metamanager.dev/mcp",
-      "headers": { "Authorization": "Bearer mm_live_..." }
-    }
-  }
-}
-```
-
-Exact configuration differs by client; what every client needs is the URL and
-that header.
-
-For **Claude Code**, one command does it:
-
-```bash
-claude mcp add --transport http metamanager https://mcp.metamanager.dev/mcp \
-  --header "Authorization: Bearer mm_live_..." \
-  -s user
-```
-
-<Warning>
-  With a key, do not use `-s project`. That scope writes `.mcp.json`, which is
-  meant to be committed and shared — your key would go into version control with
-  it. `-s user` keeps the key in your own configuration and makes MetaManager
-  available in every project.
-
-  This is one more reason to prefer OAuth where a client supports it: no
-  credential is written to the config at all, so there is nothing in the file to
-  leak.
-</Warning>
-
-The bare host without `/mcp` also works, so an existing configuration keeps
-running. Other paths do not: a typo returns a 404 naming the right address
-rather than appearing to succeed.
 
 ## Fixing a missing image
 
