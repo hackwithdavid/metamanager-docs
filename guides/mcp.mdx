@@ -25,9 +25,18 @@ handle the credential themselves.
 claude mcp add --transport http metamanager https://mcp.metamanager.dev/mcp -s user
 ```
 
-You will be asked to approve two things: reading your reports and audits, and —
-if the client asks for it — starting audits and saving URLs, which spend your
-monthly allowance. Approved connections are listed at
+The approval screen lists one permission per checkbox, and you can hand over
+less than the client asked for:
+
+| Permission | Covers |
+|---|---|
+| `checks` | Score a page, explain what is wrong, write the fix. Reads nothing from your account. |
+| `read` | Your saved URLs, site audits and monitors. |
+| `write` | Starting audits and saving URLs, which spend your monthly allowance. |
+
+Untick anything you would rather not grant. A connection that gets only `checks`
+can still do most of what an agent does — check a page and fix it — without
+seeing your account at all. Approved connections are listed at
 [your keys](https://metamanager.dev/keys), where revoking one stops it
 immediately.
 
